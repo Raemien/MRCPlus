@@ -1,0 +1,31 @@
+{
+    "id": "MRCPlus",
+    "name": "MRCPlus",
+    "author": "Raemien",
+    "icon": "cover.png",
+	"coverImageFilename": "cover.png",
+    "description": [
+        "Unlock additional options for Oculus Mixed Reality Capture. Requires a PC running the MRC OBS plugin."
+    ],
+    "category": "Gameplay",
+    "gameVersion": "1.13.2",
+    "version": "0.5.2",
+    "platform": "Quest",
+    "components": [
+        {
+            "type": "HookMod",
+            "installAction": {
+                "installLibraryFile": "libmrcplus.so"
+            },
+            "uninstallAction": {
+                "removeLibraryFile": "libmrcplus.so"
+            }
+        },
+        {
+            "type": "HookModLibrary",
+            "installAction": {
+				"installLibraryFile": "libbeatsaber-hook_1_0_12.so"
+			}
+        }
+    ]
+}
