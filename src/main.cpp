@@ -41,7 +41,6 @@ static ModInfo modInfo;
 OVRPlugin::CameraIntrinsics mrcInfo = OVRPlugin::CameraIntrinsics(false, 0.0, OVRPlugin::Fovf(0, 0, 0, 0));
 UnityEngine::GameObject* rotationRef;
 long originalCullMask = 0;
-long targetCullMask = 0;
 
 Logger& getLogger() {
     static Logger* logger = new Logger(modInfo, LoggerOptions(false, true));
@@ -60,7 +59,7 @@ void SetAsymmetricFOV(float width, float height) // Using an asymmetric fov syst
     float aratio = (width / height);
     float dec2rad = 0.0174532924f;
  
- 	float vfov_rad = userfov * dec2rad;
+    float vfov_rad = userfov * dec2rad;
     float hfov_rad = std::atan(std::tan(vfov_rad * 0.5f) * aratio) * 2.0f;
 
     float vfov = std::tan(vfov_rad / 2);
@@ -113,11 +112,13 @@ MAKE_HOOK_OFFSETLESS(OVRExternalComposition_Update, void, GlobalNamespace::OVREx
     aafactor = aafactor & (aafactor - 1) ? aafactor : 0;
     bgCamera->get_targetTexture()->set_antiAliasing(aafactor);
 
-    // Override camera properties if not MR
+    // Set custom camera properties
     if (!mrcPlusActive) return;
     bool doFpCull = (std::string)modcfg["cameraMode"].GetString() == "First Person";
     originalCullMask = (originalCullMask == 0) ? bgCamera->get_cullingMask() : originalCullMask;
-    bgCamera->set_cullingMask(UnityEngine::Camera::get_main()->get_cullingMask());
+    bgCamera->set_cullingMask(doFpCull ? UnityEngine::Camera::get_main()->get_cullingMask(): originalCullMask);
+
+    // Override camera placement
     UnityEngine::Transform* refTransform = rotationRef->get_transform();
     bgCamera->get_transform()->SetPositionAndRotation(refTransform->get_position(), refTransform->get_rotation());
 }
@@ -186,8 +187,7 @@ MAKE_HOOK_OFFSETLESS(SettingsNavController_DidActivate, void, GlobalNamespace::S
     SettingsNavController_DidActivate(instance, firstActivation, addedToHierarchy, screenSystemEnabling);
 
     // Find container's transform
-    // SettingsContainer = instance->get_transform()->Find(il2cpp_utils::createcsstr("OculusMRCSettings/SettingsContainer"));
-    if (SettingsContainer == nullptr) SettingsContainer = instance->get_transform()->Find(il2cpp_utils::createcsstr("OculusMRCSettings/SettingsContainer"));
+    SettingsContainer = instance->get_transform()->Find(il2cpp_utils::createcsstr("OculusMRCSettings/SettingsContainer"));
 
     // Apply MRC+'s modified menu
     if (firstActivation && addedToHierarchy) ModifyMRCMenu();
