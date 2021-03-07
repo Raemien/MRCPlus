@@ -188,6 +188,7 @@ MAKE_HOOK_OFFSETLESS(SettingsNavController_DidActivate, void, GlobalNamespace::S
 
     // Find container's transform
     SettingsContainer = instance->get_transform()->Find(il2cpp_utils::createcsstr("OculusMRCSettings/SettingsContainer"));
+    if (SettingsContainer == nullptr) SettingsContainer = instance->get_transform()->Find(il2cpp_utils::createcsstr("OculusMRCSettings/SettingsContainer"));
 
     // Apply MRC+'s modified menu
     if (firstActivation && addedToHierarchy) ModifyMRCMenu();
