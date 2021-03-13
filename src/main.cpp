@@ -1,3 +1,4 @@
+#include "EmbeddedContent.hpp"
 #include "UI/UIHelper.hpp"
 #include "UI/MRCMenu.hpp"
 #include "MRCConfig.hpp"
@@ -204,6 +205,8 @@ extern "C" void setup(ModInfo& info) {
 
 extern "C" void load() {
     if(!LoadConfig()) SetupConfig();
+    std::string mrcpath = "sdcard/android/data/" + Modloader::getApplicationId() + "/files/mrc.xml";
+    if(!fileexists(mrcpath)) writefile(mrcpath, FILE_MRCXML);
     il2cpp_functions::Init();
     INSTALL_HOOK_OFFSETLESS(getLogger(), SettingsNavController_DidActivate, il2cpp_utils::FindMethodUnsafe("", "SettingsNavigationController", "DidActivate", 3));
     INSTALL_HOOK_OFFSETLESS(getLogger(), WindowResSetting_InitVals, il2cpp_utils::FindMethodUnsafe("", "WindowResolutionSettingsController", "GetInitValues", 2));
