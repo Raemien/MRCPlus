@@ -14,11 +14,11 @@ struct Config_t
     int antiAliasing = 0;
     float positionSmoothness = 4;
     float rotationSmoothness = 4;
-    float posX = 0;
-    float posY = 1.75f;
-    float posZ = 0;
-    float angX = 0;
-    float angY = 0;
+    float posX = 0.77f;
+    float posY = 1.8f;
+    float posZ = -1.25f;
+    float angX = 12;
+    float angY = 325;
     float angZ = 0;
 }
 Settings;
