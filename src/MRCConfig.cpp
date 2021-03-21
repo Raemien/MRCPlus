@@ -8,6 +8,7 @@
 struct Config_t
 {
     std::string cameraMode = "Disabled";
+    bool useCameraHotkey = false;
     int width = 1280;
     int height = 720;
     int fov = 90;
@@ -29,6 +30,7 @@ void SetupConfig()
     getConfig().config.SetObject();
     auto& allocator = getConfig().config.GetAllocator();
     getConfig().config.AddMember("cameraMode", Settings.cameraMode, allocator);
+    getConfig().config.AddMember("useCameraHotkey", Settings.useCameraHotkey, allocator);
     getConfig().config.AddMember("width", Settings.width, allocator);
     getConfig().config.AddMember("height", Settings.height, allocator);
     getConfig().config.AddMember("fov", Settings.fov, allocator);
@@ -48,6 +50,7 @@ bool LoadConfig()
 {
     getConfig().Load();
     if(!getConfig().config.HasMember("cameraMode") || !getConfig().config["cameraMode"].IsString()) return false;
+    if(!getConfig().config.HasMember("useCameraHotkey") || !getConfig().config["useCameraHotkey"].IsBool()) return false;
     if(!getConfig().config.HasMember("width") || !getConfig().config["width"].IsInt()) return false;
     if(!getConfig().config.HasMember("height") || !getConfig().config["height"].IsInt()) return false;
     if(!getConfig().config.HasMember("fov") || !getConfig().config["fov"].IsInt()) return false;
@@ -66,7 +69,6 @@ bool LoadConfig()
 bool MRCPlusEnabled()
 {
     auto& modcfg = getConfig().config;
-
     bool enabled = (std::string)modcfg["cameraMode"].GetString() != "Disabled";
     bool moddedcam = (std::string)modcfg["cameraMode"].GetString() != "Mixed Reality";
     return (enabled && moddedcam);

@@ -8,6 +8,7 @@
 struct Config_t
 {
     std::string cameraMode;
+    bool useCameraHotkey;
     int width;
     int height;
     int fov;

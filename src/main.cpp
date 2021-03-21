@@ -10,6 +10,7 @@
 #include "beatsaber-hook/shared/utils/il2cpp-functions.hpp"
 #include "beatsaber-hook/shared/utils/typedefs.h"
 #include "beatsaber-hook/shared/config/config-utils.hpp"
+#include "questui/shared/QuestUI.hpp"
 
 #include "GlobalNamespace/MainCamera.hpp"
 #include "GlobalNamespace/WindowResolutionSettingsController.hpp"
@@ -25,6 +26,8 @@
 #include "GlobalNamespace/OVRPlugin_Fovf.hpp"
 #include "GlobalNamespace/OVRPlugin_OVRP_1_15_0.hpp"
 #include "GlobalNamespace/OVRPlugin_CameraIntrinsics.hpp"
+#include "GlobalNamespace/OVRInput.hpp"
+#include "GlobalNamespace/OVRInput_Button.hpp"
 
 #include "UnityEngine/RenderTexture.hpp"
 #include "UnityEngine/GameObject.hpp"
@@ -42,6 +45,7 @@ static ModInfo modInfo;
 OVRPlugin::CameraIntrinsics mrcInfo = OVRPlugin::CameraIntrinsics(false, 0.0, OVRPlugin::Fovf(0, 0, 0, 0));
 UnityEngine::GameObject* rotationRef;
 long originalCullMask = 0;
+bool canSwitch = true;
 
 Logger& getLogger() {
     static Logger* logger = new Logger(modInfo, LoggerOptions(false, true));
@@ -77,6 +81,17 @@ void CreateReferenceObject()
         rotationRef = UnityEngine::GameObject::New_ctor(il2cpp_utils::createcsstr("MRCPlusObject"));
         UnityEngine::Object::DontDestroyOnLoad(rotationRef);
     }
+}
+
+void HotSwitchCamera()
+{
+    auto& modcfg = getConfig().config;
+    if (!modcfg["useCameraHotkey"].GetBool()) return;
+
+    std::string mode = (std::string)modcfg["cameraMode"].GetString();
+    if (mode == "First Person") modcfg["cameraMode"].SetString("Third Person", modcfg.GetAllocator());
+    else if (mode == "Third Person") modcfg["cameraMode"].SetString("First Person", modcfg.GetAllocator());
+    canSwitch = false;
 }
 
 MAKE_HOOK_OFFSETLESS(OVRCameraRig_Start, void, GlobalNamespace::OVRCameraRig* self)
@@ -137,6 +152,9 @@ MAKE_HOOK_OFFSETLESS(OVRManager_LateUpdate, void, GlobalNamespace::OVRManager* s
         UnityEngine::Quaternion targetRot;
 
         // Camera modes
+        bool button_x = OVRInput::Get(OVRInput::Button::One, OVRInput::Controller::LTouch);
+        if (button_x && canSwitch) HotSwitchCamera();
+
         if ((std::string)modcfg["cameraMode"].GetString() == "First Person")
         {
             auto* targetTransform = maincam->get_transform();
@@ -148,6 +166,7 @@ MAKE_HOOK_OFFSETLESS(OVRManager_LateUpdate, void, GlobalNamespace::OVRManager* s
             targetRot = UnityEngine::Quaternion::Euler(modcfg["angX"].GetFloat(), modcfg["angY"].GetFloat(), modcfg["angZ"].GetFloat());
             targetPos = UnityEngine::Vector3(modcfg["posX"].GetFloat(), modcfg["posY"].GetFloat(), modcfg["posZ"].GetFloat());
         }
+        canSwitch = !button_x;
 
         // Lerp smoothing
         float smoothpos = 10.0f - modcfg["positionSmoothness"].GetFloat();
@@ -198,7 +217,7 @@ MAKE_HOOK_OFFSETLESS(SettingsNavController_DidActivate, void, GlobalNamespace::S
 extern "C" void setup(ModInfo& info) {
 
     info.id = "MRCPlus";
-    info.version = "0.5.2";
+    info.version = "0.5.1";
     modInfo = info;
     getConfig().Load();
 }
@@ -208,6 +227,7 @@ extern "C" void load() {
     std::string mrcpath = "sdcard/android/data/" + Modloader::getApplicationId() + "/files/mrc.xml";
     if(!fileexists(mrcpath)) writefile(mrcpath, FILE_MRCXML);
     il2cpp_functions::Init();
+    QuestUI::Init();
     INSTALL_HOOK_OFFSETLESS(getLogger(), SettingsNavController_DidActivate, il2cpp_utils::FindMethodUnsafe("", "SettingsNavigationController", "DidActivate", 3));
     INSTALL_HOOK_OFFSETLESS(getLogger(), WindowResSetting_InitVals, il2cpp_utils::FindMethodUnsafe("", "WindowResolutionSettingsController", "GetInitValues", 2));
     INSTALL_HOOK_OFFSETLESS(getLogger(), WindowResSetting_ApplyValue, il2cpp_utils::FindMethodUnsafe("", "WindowResolutionSettingsController", "ApplyValue", 1));
