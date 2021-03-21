@@ -70,12 +70,10 @@ void ModifyMRCMenu()
     UnityEngine::UI::VerticalLayoutGroup* subContainer = QuestUI::BeatSaberUI::CreateVerticalLayoutGroup(SettingsContainer->get_transform());
     subContainer->get_gameObject()->set_name(il2cpp_utils::createcsstr("NonMRSubContainer"));
     
-    UnityEngine::Events::UnityAction_1<float>* onChangeFovAction = il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction_1<float>*>(classof(UnityEngine::Events::UnityAction_1<float>*), SettingsContainer->get_gameObject(), OnChangeFov);
-    QuestUI::IncrementSetting* fovinc = QuestUI::BeatSaberUI::CreateIncrementSetting(subContainer->get_rectTransform(), GetLocale("SETTINGS_FIELD_OF_VIEW"), 0, (int)5, userfov, 70, 120, onChangeFovAction);
+    QuestUI::IncrementSetting* fovinc = QuestUI::BeatSaberUI::CreateIncrementSetting(subContainer->get_rectTransform(), GetLocale("SETTINGS_FIELD_OF_VIEW"), 0, (int)5, userfov, 70, 120, OnChangeFov);
     fovinc->GetComponent<UnityEngine::UI::LayoutElement*>()->set_preferredHeight(6.2f);
 
-    UnityEngine::Events::UnityAction_1<float>* onChangeSmoothingAction = il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction_1<float>*>(classof(UnityEngine::Events::UnityAction_1<float>*), SettingsContainer->get_gameObject(), OnChangeSmoothing);
-    QuestUI::IncrementSetting* smoothposinc = QuestUI::BeatSaberUI::CreateIncrementSetting(subContainer->get_rectTransform(), GetLocale("SETTINGS_SMOOTHNESS"), 0, (int)1, smoothpos, 0, 10, onChangeSmoothingAction);
+    QuestUI::IncrementSetting* smoothposinc = QuestUI::BeatSaberUI::CreateIncrementSetting(subContainer->get_rectTransform(), GetLocale("SETTINGS_SMOOTHNESS"), 0, (int)1, smoothpos, 0, 10, OnChangeSmoothing);
     smoothposinc->GetComponent<UnityEngine::UI::LayoutElement*>()->set_preferredHeight(6.2f);
 
     infotext->get_transform()->SetAsLastSibling();
