@@ -4,7 +4,7 @@
   "info": {
     "name": "MRCPlus",
     "id": "MRCPlus",
-    "version": "0.5.2",
+    "version": "0.5.1",
     "url": null,
     "additionalData": {}
   },
@@ -16,7 +16,7 @@
     },
     {
       "id": "beatsaber-hook",
-      "versionRange": "^1.0.12",
+      "versionRange": "^1.2.3",
       "additionalData": {
         "extraFiles": [
           "src/inline-hook"
@@ -25,17 +25,17 @@
     },
     {
       "id": "codegen",
-      "versionRange": "^0.6.2",
+      "versionRange": "^0.7.0",
       "additionalData": {}
     },
     {
       "id": "questui",
-      "versionRange": "^0.4.4",
+      "versionRange": "^0.5.0",
       "additionalData": {}
     },
     {
       "id": "custom-types",
-      "versionRange": "^0.4.4",
+      "versionRange": "^0.5.1",
       "additionalData": {}
     }
   ],
