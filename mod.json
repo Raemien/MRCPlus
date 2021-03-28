@@ -1,0 +1,18 @@
+{
+    "_QPVersion": "0.1.0",
+    "name": "MRCPlus",
+    "id": "MRCPlus",
+    "author": "Raemien",
+    "version": "0.5.2",
+    "packageId": "com.beatgames.beatsaber",
+    "packageVersion": "1.14.0",
+    "type": "Streaming",
+    "modFiles": [
+        "libmrcplus.so"
+    ],
+    "libraryFiles": [
+        "libbeatsaber-hook_1_2_4.so"
+    ],
+    "fileCopies": [
+    ]
+}

@@ -49,3 +49,4 @@ extern/
 DebrisTweaks.zip
 qpm.shared.json
 Android.mk.backup
+*.qmod
