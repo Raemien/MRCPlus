@@ -15,7 +15,7 @@
 std::vector<std::string> ModeValues {"Disabled", "Mixed Reality", "First Person", "Third Person"};
 UnityEngine::Transform* SettingsContainer = nullptr;
 
-void OnChangeFov(UnityEngine::GameObject* instance, float newval)
+void OnChangeFov(float newval)
 {
     auto& modcfg = getConfig().config;
     float width = (float)modcfg["width"].GetInt();
@@ -24,7 +24,7 @@ void OnChangeFov(UnityEngine::GameObject* instance, float newval)
     SetAsymmetricFOV(width, height);
 }
 
-void OnChangeSmoothing(UnityEngine::GameObject* instance, float newval)
+void OnChangeSmoothing(float newval)
 {
     getConfig().config["positionSmoothness"].SetFloat(newval);
     getConfig().config["rotationSmoothness"].SetFloat(newval);

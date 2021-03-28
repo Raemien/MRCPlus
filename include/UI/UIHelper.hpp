@@ -6,11 +6,9 @@ enum WarningText {Default, PerfWarning, RestartOBS, RestartGame};
 
 extern UnityEngine::Transform* SettingsContainer;
 
-extern void OnChangeFov(UnityEngine::GameObject* instance, float newval);
+extern void OnChangeFov(float newval);
 
-extern void OnChangeSmoothing(UnityEngine::GameObject* instance, float newval);
-
-extern void OnChangeFirstPerson(UnityEngine::GameObject* instance, bool newval);
+extern void OnChangeSmoothing(float newval);
 
 extern void OnChangeCameraMode(std::string newval);
 
