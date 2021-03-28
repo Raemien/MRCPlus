@@ -21,6 +21,7 @@ void OnChangeFov(float newval)
     float width = (float)modcfg["width"].GetInt();
     float height = (float)modcfg["height"].GetInt();
     modcfg["fov"].SetInt(newval);
+    getConfig().Write();
     SetAsymmetricFOV(width, height);
 }
 
@@ -28,6 +29,7 @@ void OnChangeSmoothing(float newval)
 {
     getConfig().config["positionSmoothness"].SetFloat(newval);
     getConfig().config["rotationSmoothness"].SetFloat(newval);
+    getConfig().Write();
 }
 
 void OnChangeCameraMode(std::string newval)
