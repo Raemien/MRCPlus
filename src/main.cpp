@@ -217,7 +217,7 @@ MAKE_HOOK_OFFSETLESS(SettingsNavController_DidActivate, void, GlobalNamespace::S
 extern "C" void setup(ModInfo& info) {
 
     info.id = "MRCPlus";
-    info.version = "0.5.1";
+    info.version = "0.5.2";
     modInfo = info;
     getConfig().Load();
 }

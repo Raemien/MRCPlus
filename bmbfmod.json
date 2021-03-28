@@ -9,7 +9,7 @@
     ],
     "category": "Gameplay",
     "gameVersion": "1.14.0",
-    "version": "0.5.1",
+    "version": "0.5.2",
     "platform": "Quest",
     "components": [
         {
@@ -24,7 +24,7 @@
         {
             "type": "HookModLibrary",
             "installAction": {
-				"installLibraryFile": "libbeatsaber-hook_1_2_3.so"
+				"installLibraryFile": "libbeatsaber-hook_1_2_4.so"
 			}
         }
     ]
