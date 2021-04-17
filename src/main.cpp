@@ -123,6 +123,7 @@ MAKE_HOOK_OFFSETLESS(OVRExternalComposition_Update, void, GlobalNamespace::OVREx
     // Apply global changes
     auto& modcfg = getConfig().config;
     auto* bgCamera = self->backgroundCamera;
+    auto* fgCamera = self->foregroundCamera;
     bool mrcPlusActive = MRCPlusEnabled();
     int aafactor = modcfg["antiAliasing"].GetInt();
     aafactor = aafactor & (aafactor - 1) ? aafactor : 0;
@@ -133,6 +134,7 @@ MAKE_HOOK_OFFSETLESS(OVRExternalComposition_Update, void, GlobalNamespace::OVREx
     bool doFpCull = (std::string)modcfg["cameraMode"].GetString() == "First Person";
     originalCullMask = (originalCullMask == 0) ? bgCamera->get_cullingMask() : originalCullMask;
     bgCamera->set_cullingMask(doFpCull ? UnityEngine::Camera::get_main()->get_cullingMask(): originalCullMask);
+    fgCamera->set_enabled(false);
 
     // Override camera placement
     UnityEngine::Transform* refTransform = rotationRef->get_transform();
