@@ -39,13 +39,13 @@ void ModifyMRCMenu()
     int userfov = modcfg["fov"].GetInt();
 
     // Modify existing text
-    UnityEngine::GameObject* infotext = SettingsContainer->Find(il2cpp_utils::createcsstr("InfoText"))->get_gameObject();
-    infotext->GetComponent<TMPro::TextMeshProUGUI*>()->SetText(il2cpp_utils::createcsstr(newinfotext));
-    UnityEngine::GameObject* warningtext = SettingsContainer->Find(il2cpp_utils::createcsstr("WarningText"))->get_gameObject();
+    UnityEngine::GameObject* infotext = SettingsContainer->Find(il2cpp_utils::newcsstr("InfoText"))->get_gameObject();
+    infotext->GetComponent<TMPro::TextMeshProUGUI*>()->SetText(il2cpp_utils::newcsstr(newinfotext));
+    UnityEngine::GameObject* warningtext = SettingsContainer->Find(il2cpp_utils::newcsstr("WarningText"))->get_gameObject();
     SetWarningText(WarningText::Default);
 
     // Global settings
-    UnityEngine::Transform* mrcToggle = SettingsContainer->Find(il2cpp_utils::createcsstr("MixedRealityCaptureEnabled"));
+    UnityEngine::Transform* mrcToggle = SettingsContainer->Find(il2cpp_utils::newcsstr("MixedRealityCaptureEnabled"));
     mrcToggle->GetComponent<UnityEngine::UI::LayoutElement*>()->set_ignoreLayout(true);
     mrcToggle->set_localScale(UnityEngine::Vector3::get_zero());
     
@@ -64,11 +64,11 @@ void ModifyMRCMenu()
             resolutionsetting->ApplyValue(i);
         }
     }
-    resolutionsetting->set_text(il2cpp_utils::createcsstr(std::to_string(width) + " x " + std::to_string(height)));
+    resolutionsetting->set_text(il2cpp_utils::newcsstr(std::to_string(width) + " x " + std::to_string(height)));
 
     // Non-MR settings
     UnityEngine::UI::VerticalLayoutGroup* subContainer = QuestUI::BeatSaberUI::CreateVerticalLayoutGroup(SettingsContainer->get_transform());
-    subContainer->get_gameObject()->set_name(il2cpp_utils::createcsstr("NonMRSubContainer"));
+    subContainer->get_gameObject()->set_name(il2cpp_utils::newcsstr("NonMRSubContainer"));
     
     QuestUI::IncrementSetting* fovinc = QuestUI::BeatSaberUI::CreateIncrementSetting(subContainer->get_rectTransform(), GetLocale("SETTINGS_FIELD_OF_VIEW"), 0, (int)5, userfov, 70, 120, OnChangeFov);
     fovinc->GetComponent<UnityEngine::UI::LayoutElement*>()->set_preferredHeight(6.2f);

@@ -41,7 +41,7 @@ void OnChangeCameraMode(std::string newval)
     bool mixedReality = (newval == "Mixed Reality");
     bool disabled = (newval == "Disabled");
     if (!SettingsContainer) {
-        SettingsContainer = UnityEngine::GameObject::Find(il2cpp_utils::createcsstr("OculusMRCSettings/SettingsContainer"))->get_transform();
+        SettingsContainer = UnityEngine::GameObject::Find(il2cpp_utils::newcsstr("OculusMRCSettings/SettingsContainer"))->get_transform();
     }
     auto* boolsetting = SettingsContainer->GetComponentInChildren<GlobalNamespace::BoolSettingsController*>();
 
@@ -56,13 +56,13 @@ void OnChangeCameraMode(std::string newval)
     }
     else SetAsymmetricFOV(width, height);
     
-    auto* subcontainer = SettingsContainer->Find(il2cpp_utils::createcsstr("NonMRSubContainer"));
+    auto* subcontainer = SettingsContainer->Find(il2cpp_utils::newcsstr("NonMRSubContainer"));
     subcontainer->set_localScale(scale);
 }
 
 void SetWarningText(WarningText txtnum)
 {
-    TMPro::TextMeshProUGUI* warntext = SettingsContainer->Find(il2cpp_utils::createcsstr("WarningText"))->GetComponent<TMPro::TextMeshProUGUI*>();
+    TMPro::TextMeshProUGUI* warntext = SettingsContainer->Find(il2cpp_utils::newcsstr("WarningText"))->GetComponent<TMPro::TextMeshProUGUI*>();
     std::string message;
     switch (txtnum)
     {
@@ -79,12 +79,12 @@ void SetWarningText(WarningText txtnum)
         message = "For more information on how to set up MRC, please visit Oculus's setup guide.";
         break;
     }
-    warntext->SetText(il2cpp_utils::createcsstr(message));
+    warntext->SetText(il2cpp_utils::newcsstr(message));
 }
 
 std::string GetLocale(std::string key)
 {
-    Il2CppString* localestr = Polyglot::Localization::Get(il2cpp_utils::createcsstr(key));
+    Il2CppString* localestr = Polyglot::Localization::Get(il2cpp_utils::newcsstr(key));
     return to_utf8(csstrtostr(localestr));
 }
 

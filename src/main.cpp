@@ -85,7 +85,7 @@ void CreateReferenceObject()
     if (!rotationRef)
     {
         // Create reference object
-        rotationRef = UnityEngine::GameObject::New_ctor(il2cpp_utils::createcsstr("MRCPlusObject"));
+        rotationRef = UnityEngine::GameObject::New_ctor(il2cpp_utils::newcsstr("MRCPlusObject"));
         UnityEngine::Object::DontDestroyOnLoad(rotationRef);
 
         // Placement visualizer
@@ -224,8 +224,8 @@ MAKE_HOOK_OFFSETLESS(SettingsNavController_DidActivate, void, GlobalNamespace::S
     SettingsNavController_DidActivate(instance, firstActivation, addedToHierarchy, screenSystemEnabling);
 
     // Find container's transform
-    SettingsContainer = instance->get_transform()->Find(il2cpp_utils::createcsstr("OculusMRCSettings/SettingsContainer"));
-    if (SettingsContainer == nullptr) SettingsContainer = instance->get_transform()->Find(il2cpp_utils::createcsstr("Container/OculusMRCSettings/SettingsContainer"));
+    SettingsContainer = instance->get_transform()->Find(il2cpp_utils::newcsstr("OculusMRCSettings/SettingsContainer"));
+    if (SettingsContainer == nullptr) SettingsContainer = instance->get_transform()->Find(il2cpp_utils::newcsstr("Container/OculusMRCSettings/SettingsContainer"));
 
     // Apply MRC+'s modified menu
     if (firstActivation && addedToHierarchy) ModifyMRCMenu();
