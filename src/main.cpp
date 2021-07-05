@@ -29,9 +29,15 @@
 #include "GlobalNamespace/OVRInput.hpp"
 #include "GlobalNamespace/OVRInput_Button.hpp"
 
+#include "UnityEngine/PrimitiveType.hpp"
 #include "UnityEngine/RenderTexture.hpp"
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/Transform.hpp"
+#include "UnityEngine/Component.hpp"
+#include "UnityEngine/Collider.hpp"
+#include "UnityEngine/Material.hpp"
+#include "UnityEngine/Renderer.hpp"
+#include "UnityEngine/Vector3.hpp"
 #include "UnityEngine/Texture.hpp"
 #include "UnityEngine/Camera.hpp"
 #include "UnityEngine/Time.hpp"
@@ -44,6 +50,7 @@ static ModInfo modInfo;
 
 OVRPlugin::CameraIntrinsics mrcInfo = OVRPlugin::CameraIntrinsics(false, 0.0, OVRPlugin::Fovf(0, 0, 0, 0));
 UnityEngine::GameObject* rotationRef;
+UnityEngine::RenderTexture* camTexture;
 long originalCullMask = 0;
 bool canSwitch = true;
 
@@ -80,6 +87,16 @@ void CreateReferenceObject()
         // Create reference object
         rotationRef = UnityEngine::GameObject::New_ctor(il2cpp_utils::createcsstr("MRCPlusObject"));
         UnityEngine::Object::DontDestroyOnLoad(rotationRef);
+
+        // Placement visualizer
+        UnityEngine::GameObject* cubeObj = UnityEngine::GameObject::CreatePrimitive((int)3);
+        cubeObj->set_name(il2cpp_utils::newcsstr("Visualizer"));
+        cubeObj->get_transform()->set_parent(rotationRef->get_transform());
+        cubeObj->get_transform()->set_localScale(UnityEngine::Vector3::get_one() * 0.25);
+        UnityEngine::Component::Destroy(cubeObj->GetComponent<UnityEngine::Collider*>());
+
+        // Viewfinder
+        cubeObj->GetComponent<UnityEngine::Renderer*>()->get_material()->SetTexture(il2cpp_utils::newcsstr("_MainTex"), (UnityEngine::Texture*)camTexture);
     }
 }
 
@@ -123,18 +140,15 @@ MAKE_HOOK_OFFSETLESS(OVRExternalComposition_Update, void, GlobalNamespace::OVREx
     // Apply global changes
     auto& modcfg = getConfig().config;
     auto* bgCamera = self->backgroundCamera;
-    auto* fgCamera = self->foregroundCamera;
     bool mrcPlusActive = MRCPlusEnabled();
     int aafactor = modcfg["antiAliasing"].GetInt();
     aafactor = aafactor & (aafactor - 1) ? aafactor : 0;
-    bgCamera->get_targetTexture()->set_antiAliasing(aafactor);
 
     // Set custom camera properties
     if (!mrcPlusActive) return;
     bool doFpCull = (std::string)modcfg["cameraMode"].GetString() == "First Person";
     originalCullMask = (originalCullMask == 0) ? bgCamera->get_cullingMask() : originalCullMask;
     bgCamera->set_cullingMask(doFpCull ? UnityEngine::Camera::get_main()->get_cullingMask(): originalCullMask);
-    fgCamera->set_enabled(false);
 
     // Override camera placement
     UnityEngine::Transform* refTransform = rotationRef->get_transform();
@@ -155,6 +169,7 @@ MAKE_HOOK_OFFSETLESS(OVRManager_LateUpdate, void, GlobalNamespace::OVRManager* s
 
         // Camera modes
         bool button_x = OVRInput::Get(OVRInput::Button::One, OVRInput::Controller::LTouch);
+        bool button_anyclick = OVRInput::Get(OVRInput::Button::PrimaryIndexTrigger, OVRInput::Controller::All);
         if (button_x && canSwitch) HotSwitchCamera();
 
         if ((std::string)modcfg["cameraMode"].GetString() == "First Person")
