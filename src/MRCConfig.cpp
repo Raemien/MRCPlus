@@ -12,7 +12,7 @@ struct Config_t
     int width = 1280;
     int height = 720;
     int fov = 90;
-    int antiAliasing = 0;
+    int antiAliasing = 4;
     float positionSmoothness = 4;
     float rotationSmoothness = 4;
     float posX = 0.77f;

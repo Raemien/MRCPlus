@@ -142,7 +142,10 @@ MAKE_HOOK_OFFSETLESS(OVRExternalComposition_Update, void, GlobalNamespace::OVREx
     auto* bgCamera = self->backgroundCamera;
     bool mrcPlusActive = MRCPlusEnabled();
     int aafactor = modcfg["antiAliasing"].GetInt();
-    aafactor = aafactor & (aafactor - 1) ? aafactor : 0;
+    aafactor = std::clamp((aafactor & (aafactor - 1) ? aafactor : 0), 0, 4);
+    bgCamera->set_allowMSAA(true);
+    camTexture = bgCamera->get_targetTexture();
+    camTexture->set_antiAliasing(aafactor);
 
     // Set custom camera properties
     if (!mrcPlusActive) return;
