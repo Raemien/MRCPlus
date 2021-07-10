@@ -13,6 +13,8 @@
 #include "questui/shared/QuestUI.hpp"
 
 #include "GlobalNamespace/MainCamera.hpp"
+#include "GlobalNamespace/ConditionalActivation.hpp"
+#include "GlobalNamespace/ConditionalMaterialSwitcher.hpp"
 #include "GlobalNamespace/WindowResolutionSettingsController.hpp"
 #include "GlobalNamespace/SettingsNavigationController.hpp"
 #include "GlobalNamespace/OVRExternalComposition.hpp"
@@ -28,7 +30,9 @@
 #include "GlobalNamespace/OVRPlugin_CameraIntrinsics.hpp"
 #include "GlobalNamespace/OVRInput.hpp"
 #include "GlobalNamespace/OVRInput_Button.hpp"
+#include "GlobalNamespace/BoolSO.hpp"
 
+#include "UnityEngine/ScriptableObject.hpp"
 #include "UnityEngine/PrimitiveType.hpp"
 #include "UnityEngine/RenderTexture.hpp"
 #include "UnityEngine/GameObject.hpp"
@@ -43,6 +47,7 @@
 #include "UnityEngine/Time.hpp"
 
 #include "System/Func_2.hpp"
+#include <regex>
 
 using namespace GlobalNamespace;
 
@@ -126,6 +131,11 @@ MAKE_HOOK_OFFSETLESS(OVRCameraRig_Start, void, GlobalNamespace::OVRCameraRig* se
     SetAsymmetricFOV((float)fwidth, (float)fheight);
 }
 
+bool IsRegexMatch(Il2CppString* input, std::string pattern)
+{
+    return std::regex_search(to_utf8(csstrtostr(input)), std::regex(pattern));
+}
+
 MAKE_HOOK_OFFSETLESS(OVRPlugin_InitializeMR, void, GlobalNamespace::OVRPlugin* self)
 {
     OVRPlugin_InitializeMR(self);
@@ -139,6 +149,7 @@ MAKE_HOOK_OFFSETLESS(OVRExternalComposition_Update, void, GlobalNamespace::OVREx
 
     // Apply global changes
     auto& modcfg = getConfig().config;
+    auto* mainCamera = UnityEngine::Camera::get_main();
     auto* bgCamera = self->backgroundCamera;
     bool mrcPlusActive = MRCPlusEnabled();
     int aafactor = modcfg["antiAliasing"].GetInt();
@@ -151,7 +162,7 @@ MAKE_HOOK_OFFSETLESS(OVRExternalComposition_Update, void, GlobalNamespace::OVREx
     if (!mrcPlusActive) return;
     bool doFpCull = (std::string)modcfg["cameraMode"].GetString() == "First Person";
     originalCullMask = (originalCullMask == 0) ? bgCamera->get_cullingMask() : originalCullMask;
-    bgCamera->set_cullingMask(doFpCull ? UnityEngine::Camera::get_main()->get_cullingMask(): originalCullMask);
+    bgCamera->set_cullingMask(doFpCull && mainCamera ? mainCamera->get_cullingMask(): originalCullMask);
 
     // Override camera placement
     UnityEngine::Transform* refTransform = rotationRef->get_transform();
@@ -234,6 +245,26 @@ MAKE_HOOK_OFFSETLESS(SettingsNavController_DidActivate, void, GlobalNamespace::S
     if (firstActivation && addedToHierarchy) ModifyMRCMenu();
 }
 
+MAKE_HOOK_OFFSETLESS(ConditionalMaterialSwitcher_Awake, void, GlobalNamespace::ConditionalMaterialSwitcher* instance)
+{
+    if (IsRegexMatch(instance->get_name(), "ObstacleCore|ObstacleFrame") && getConfig().config["enablePCWalls"].GetBool())
+    {
+        BoolSO* use_grappass = (BoolSO*)UnityEngine::ScriptableObject::CreateInstance(csTypeOf(BoolSO*));
+        use_grappass->value = true;
+        instance->value = use_grappass;
+    }
+    ConditionalMaterialSwitcher_Awake(instance);
+}
+
+MAKE_HOOK_OFFSETLESS(ConditionalActivation_Awake, void, GlobalNamespace::ConditionalActivation* instance)
+{
+    ConditionalActivation_Awake(instance);
+    if (IsRegexMatch(instance->get_name(), "GrabPassTexture1|DepthWrite") && getConfig().config["enablePCWalls"].GetBool())
+    {
+        instance->get_gameObject()->SetActive(true);
+    }
+}
+
 extern "C" void setup(ModInfo& info) {
 
     info.id = "MRCPlus";
@@ -248,9 +279,17 @@ extern "C" void load() {
     if(!fileexists(mrcpath)) writefile(mrcpath, FILE_MRCXML);
     il2cpp_functions::Init();
     QuestUI::Init();
+
+    // UI Hooks
     INSTALL_HOOK_OFFSETLESS(getLogger(), SettingsNavController_DidActivate, il2cpp_utils::FindMethodUnsafe("", "SettingsNavigationController", "DidActivate", 3));
     INSTALL_HOOK_OFFSETLESS(getLogger(), WindowResSetting_InitVals, il2cpp_utils::FindMethodUnsafe("", "WindowResolutionSettingsController", "GetInitValues", 2));
     INSTALL_HOOK_OFFSETLESS(getLogger(), WindowResSetting_ApplyValue, il2cpp_utils::FindMethodUnsafe("", "WindowResolutionSettingsController", "ApplyValue", 1));
+
+    // Effect Hooks
+    INSTALL_HOOK_OFFSETLESS(getLogger(), ConditionalMaterialSwitcher_Awake, il2cpp_utils::FindMethodUnsafe("", "ConditionalMaterialSwitcher", "Awake", 0));
+    INSTALL_HOOK_OFFSETLESS(getLogger(), ConditionalActivation_Awake, il2cpp_utils::FindMethodUnsafe("", "ConditionalActivation", "Awake", 0));
+
+    // Camera Hooks
     INSTALL_HOOK_OFFSETLESS(getLogger(), OVRPlugin_InitializeMR, il2cpp_utils::FindMethod("", "OVRPlugin", "InitializeMixedReality"));
     INSTALL_HOOK_OFFSETLESS(getLogger(), OVRCameraRig_Start, il2cpp_utils::FindMethod("", "OVRCameraRig", "Start"));
     INSTALL_HOOK_OFFSETLESS(getLogger(), OVRExternalComposition_Update, il2cpp_utils::FindMethodUnsafe("", "OVRExternalComposition", "Update", 4));

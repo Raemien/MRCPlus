@@ -9,6 +9,7 @@ struct Config_t
 {
     std::string cameraMode;
     bool useCameraHotkey;
+    bool enablePCWalls;
     int width;
     int height;
     int fov;

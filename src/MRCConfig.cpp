@@ -9,6 +9,7 @@ struct Config_t
 {
     std::string cameraMode = "Disabled";
     bool useCameraHotkey = false;
+    bool enablePCWalls = false;
     int width = 1280;
     int height = 720;
     int fov = 90;
@@ -31,6 +32,7 @@ void SetupConfig()
     auto& allocator = getConfig().config.GetAllocator();
     getConfig().config.AddMember("cameraMode", Settings.cameraMode, allocator);
     getConfig().config.AddMember("useCameraHotkey", Settings.useCameraHotkey, allocator);
+    getConfig().config.AddMember("enablePCWalls", Settings.enablePCWalls, allocator);
     getConfig().config.AddMember("width", Settings.width, allocator);
     getConfig().config.AddMember("height", Settings.height, allocator);
     getConfig().config.AddMember("fov", Settings.fov, allocator);
@@ -51,6 +53,7 @@ bool LoadConfig()
     getConfig().Load();
     if(!getConfig().config.HasMember("cameraMode") || !getConfig().config["cameraMode"].IsString()) return false;
     if(!getConfig().config.HasMember("useCameraHotkey") || !getConfig().config["useCameraHotkey"].IsBool()) return false;
+    if(!getConfig().config.HasMember("enablePCWalls") || !getConfig().config["enablePCWalls"].IsBool()) return false;
     if(!getConfig().config.HasMember("width") || !getConfig().config["width"].IsInt()) return false;
     if(!getConfig().config.HasMember("height") || !getConfig().config["height"].IsInt()) return false;
     if(!getConfig().config.HasMember("fov") || !getConfig().config["fov"].IsInt()) return false;
