@@ -6,6 +6,7 @@
 #include "modloader/shared/modloader.hpp"
 #include "beatsaber-hook/shared/utils/utils.h"
 #include "beatsaber-hook/shared/utils/logging.hpp"
+#include "beatsaber-hook/shared/utils/hooking.hpp"
 #include "beatsaber-hook/shared/utils/il2cpp-utils.hpp" 
 #include "beatsaber-hook/shared/utils/il2cpp-functions.hpp"
 #include "beatsaber-hook/shared/utils/typedefs.h"
@@ -17,6 +18,8 @@
 #include "GlobalNamespace/ConditionalMaterialSwitcher.hpp"
 #include "GlobalNamespace/WindowResolutionSettingsController.hpp"
 #include "GlobalNamespace/SettingsNavigationController.hpp"
+#include "GlobalNamespace/OVRMixedRealityCaptureConfiguration.hpp"
+#include "GlobalNamespace/OVRManager_TrackingOrigin.hpp"
 #include "GlobalNamespace/OVRExternalComposition.hpp"
 #include "GlobalNamespace/OVRMixedReality.hpp"
 #include "GlobalNamespace/OVRExtensions.hpp"
@@ -116,7 +119,7 @@ void HotSwitchCamera()
     canSwitch = false;
 }
 
-MAKE_HOOK_OFFSETLESS(OVRCameraRig_Start, void, GlobalNamespace::OVRCameraRig* self)
+MAKE_HOOK_MATCH(OVRCameraRig_Start, &GlobalNamespace::OVRCameraRig::Start, void, GlobalNamespace::OVRCameraRig* self)
 {
     OVRCameraRig_Start(self);
     if (!OVRPlugin::GetUseOverriddenExternalCameraFov(0)) {
@@ -136,16 +139,16 @@ bool IsRegexMatch(Il2CppString* input, std::string pattern)
     return std::regex_search(to_utf8(csstrtostr(input)), std::regex(pattern));
 }
 
-MAKE_HOOK_OFFSETLESS(OVRPlugin_InitializeMR, void, GlobalNamespace::OVRPlugin* self)
+MAKE_HOOK_FIND_CLASS(OVRPlugin_InitializeMR, "", "OVRPlugin", "InitializeMixedReality", void)
 {
-    OVRPlugin_InitializeMR(self);
+    OVRPlugin_InitializeMR();
     CreateReferenceObject();
     getLogger().info("[MRCPlus] Mixed Reality Capture initialized.");
 }
 
-MAKE_HOOK_OFFSETLESS(OVRExternalComposition_Update, void, GlobalNamespace::OVRExternalComposition* self, UnityEngine::GameObject* parentObj, UnityEngine::Camera* mainCam, System::Func_2<UnityEngine::Camera*, UnityEngine::GameObject*>* instMrcBGCamObj, System::Func_2<UnityEngine::Camera*, UnityEngine::GameObject*>* instMrcFGCamObj)
+MAKE_HOOK_MATCH(OVRExternalComposition_Update, &GlobalNamespace::OVRExternalComposition::Update, void, GlobalNamespace::OVRExternalComposition* self, UnityEngine::GameObject* parentObj, UnityEngine::Camera* mainCam, GlobalNamespace::OVRMixedRealityCaptureConfiguration* mrcConfig, GlobalNamespace::OVRManager_TrackingOrigin trackingOrigin)
 {
-    OVRExternalComposition_Update(self, parentObj, mainCam, instMrcBGCamObj, instMrcFGCamObj);
+    OVRExternalComposition_Update(self, parentObj, mainCam, mrcConfig, trackingOrigin);
 
     // Apply global changes
     auto& modcfg = getConfig().config;
@@ -169,7 +172,7 @@ MAKE_HOOK_OFFSETLESS(OVRExternalComposition_Update, void, GlobalNamespace::OVREx
     bgCamera->get_transform()->SetPositionAndRotation(refTransform->get_position(), refTransform->get_rotation());
 }
 
-MAKE_HOOK_OFFSETLESS(OVRManager_LateUpdate, void, GlobalNamespace::OVRManager* self)
+MAKE_HOOK_MATCH(OVRManager_LateUpdate, &GlobalNamespace::OVRManager::LateUpdate, void, GlobalNamespace::OVRManager* self)
 {
     OVRManager_LateUpdate(self);
     UnityEngine::Camera* maincam = UnityEngine::Camera::get_main();
@@ -209,7 +212,7 @@ MAKE_HOOK_OFFSETLESS(OVRManager_LateUpdate, void, GlobalNamespace::OVRManager* s
     }
 }
 
-MAKE_HOOK_OFFSETLESS(WindowResSetting_InitVals, bool, GlobalNamespace::WindowResolutionSettingsController* instance, int& index, int& size)
+MAKE_HOOK_MATCH(WindowResSetting_InitVals, &GlobalNamespace::WindowResolutionSettingsController::GetInitValues, bool, GlobalNamespace::WindowResolutionSettingsController* instance, int& index, int& size)
 {
     // Don't initialize our values as we'll set them manually
     if (instance->get_transform()->get_parent() == SettingsContainer) return false;
@@ -217,7 +220,7 @@ MAKE_HOOK_OFFSETLESS(WindowResSetting_InitVals, bool, GlobalNamespace::WindowRes
     return false;
 }
 
-MAKE_HOOK_OFFSETLESS(WindowResSetting_ApplyValue, void, GlobalNamespace::WindowResolutionSettingsController* instance, int index)
+MAKE_HOOK_MATCH(WindowResSetting_ApplyValue, &GlobalNamespace::WindowResolutionSettingsController::ApplyValue, void, GlobalNamespace::WindowResolutionSettingsController* instance, int index)
 {
     WindowResSetting_ApplyValue(instance, index);
     if (instance->get_transform()->get_parent() != SettingsContainer) return;
@@ -233,7 +236,7 @@ MAKE_HOOK_OFFSETLESS(WindowResSetting_ApplyValue, void, GlobalNamespace::WindowR
     }
 }
 
-MAKE_HOOK_OFFSETLESS(SettingsNavController_DidActivate, void, GlobalNamespace::SettingsNavigationController* instance, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
+MAKE_HOOK_MATCH(SettingsNavController_DidActivate, &GlobalNamespace::SettingsNavigationController::DidActivate, void, GlobalNamespace::SettingsNavigationController* instance, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
 {
     SettingsNavController_DidActivate(instance, firstActivation, addedToHierarchy, screenSystemEnabling);
 
@@ -245,7 +248,7 @@ MAKE_HOOK_OFFSETLESS(SettingsNavController_DidActivate, void, GlobalNamespace::S
     if (firstActivation && addedToHierarchy) ModifyMRCMenu();
 }
 
-MAKE_HOOK_OFFSETLESS(ConditionalMaterialSwitcher_Awake, void, GlobalNamespace::ConditionalMaterialSwitcher* instance)
+MAKE_HOOK_MATCH(ConditionalMaterialSwitcher_Awake, &GlobalNamespace::ConditionalMaterialSwitcher::Awake, void, GlobalNamespace::ConditionalMaterialSwitcher* instance)
 {
     if (IsRegexMatch(instance->get_name(), "ObstacleCore|ObstacleFrame") && getConfig().config["enablePCWalls"].GetBool())
     {
@@ -256,7 +259,7 @@ MAKE_HOOK_OFFSETLESS(ConditionalMaterialSwitcher_Awake, void, GlobalNamespace::C
     ConditionalMaterialSwitcher_Awake(instance);
 }
 
-MAKE_HOOK_OFFSETLESS(ConditionalActivation_Awake, void, GlobalNamespace::ConditionalActivation* instance)
+MAKE_HOOK_MATCH(ConditionalActivation_Awake, &GlobalNamespace::ConditionalActivation::Awake, void, GlobalNamespace::ConditionalActivation* instance)
 {
     ConditionalActivation_Awake(instance);
     if (IsRegexMatch(instance->get_name(), "GrabPassTexture1|DepthWrite") && getConfig().config["enablePCWalls"].GetBool())
@@ -281,17 +284,17 @@ extern "C" void load() {
     QuestUI::Init();
 
     // UI Hooks
-    INSTALL_HOOK_OFFSETLESS(getLogger(), SettingsNavController_DidActivate, il2cpp_utils::FindMethodUnsafe("", "SettingsNavigationController", "DidActivate", 3));
-    INSTALL_HOOK_OFFSETLESS(getLogger(), WindowResSetting_InitVals, il2cpp_utils::FindMethodUnsafe("", "WindowResolutionSettingsController", "GetInitValues", 2));
-    INSTALL_HOOK_OFFSETLESS(getLogger(), WindowResSetting_ApplyValue, il2cpp_utils::FindMethodUnsafe("", "WindowResolutionSettingsController", "ApplyValue", 1));
+    INSTALL_HOOK(getLogger(), SettingsNavController_DidActivate);
+    INSTALL_HOOK(getLogger(), WindowResSetting_InitVals);
+    INSTALL_HOOK(getLogger(), WindowResSetting_ApplyValue);
 
     // Effect Hooks
-    INSTALL_HOOK_OFFSETLESS(getLogger(), ConditionalMaterialSwitcher_Awake, il2cpp_utils::FindMethodUnsafe("", "ConditionalMaterialSwitcher", "Awake", 0));
-    INSTALL_HOOK_OFFSETLESS(getLogger(), ConditionalActivation_Awake, il2cpp_utils::FindMethodUnsafe("", "ConditionalActivation", "Awake", 0));
+    INSTALL_HOOK(getLogger(), ConditionalMaterialSwitcher_Awake);
+    INSTALL_HOOK(getLogger(), ConditionalActivation_Awake);
 
     // Camera Hooks
-    INSTALL_HOOK_OFFSETLESS(getLogger(), OVRPlugin_InitializeMR, il2cpp_utils::FindMethod("", "OVRPlugin", "InitializeMixedReality"));
-    INSTALL_HOOK_OFFSETLESS(getLogger(), OVRCameraRig_Start, il2cpp_utils::FindMethod("", "OVRCameraRig", "Start"));
-    INSTALL_HOOK_OFFSETLESS(getLogger(), OVRExternalComposition_Update, il2cpp_utils::FindMethodUnsafe("", "OVRExternalComposition", "Update", 4));
-    INSTALL_HOOK_OFFSETLESS(getLogger(), OVRManager_LateUpdate, il2cpp_utils::FindMethod("", "OVRManager", "LateUpdate"));
+    INSTALL_HOOK(getLogger(), OVRPlugin_InitializeMR);
+    INSTALL_HOOK(getLogger(), OVRCameraRig_Start);
+    INSTALL_HOOK(getLogger(), OVRExternalComposition_Update);
+    INSTALL_HOOK(getLogger(), OVRManager_LateUpdate);
 }
