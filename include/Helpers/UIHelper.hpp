@@ -1,6 +1,7 @@
 #include "UnityEngine/Vector2Int.hpp"
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/Transform.hpp"
+#include "TMPro/TextMeshProUGUI.hpp"
 
 enum WarningText {Default, PerfWarning, RestartOBS, RestartGame};
 
@@ -10,7 +11,7 @@ extern void OnChangeFov(float newval);
 
 extern void OnChangeSmoothing(float newval);
 
-extern void OnChangeCameraMode(std::string newval);
+extern void OnChangeCameraMode_Deprecated(std::string newval);
 
 extern void SetWarningText(WarningText txtnum);
 
@@ -18,6 +19,10 @@ extern std::vector<std::string> ModeValues;
 
 extern std::string GetModeText(int mode);
 
+extern TMPro::TextMeshProUGUI* CreateLocalizableText(std::string key, UnityEngine::Transform* parent);
+
 extern std::string GetLocale(std::string key);
+
+extern bool IsEnglish();
 
 extern Array<UnityEngine::Vector2Int>* GetMRCResolutions();

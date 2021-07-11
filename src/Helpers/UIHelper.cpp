@@ -1,16 +1,26 @@
 #include "main.hpp"
 #include "MRCConfig.hpp"
-#include "UI/UIHelper.hpp"
+#include "Helpers/ObjectHelper.hpp"
+#include "Helpers/UIHelper.hpp"
+#include "questui/shared/BeatSaberUI.hpp"
 #include "beatsaber-hook/shared/utils/il2cpp-utils.hpp"
 #include "beatsaber-hook/shared/config/config-utils.hpp"
-#include "GlobalNamespace/BoolSettingsController.hpp"
+#include "GlobalNamespace/NamedIntListController.hpp"
 #include "GlobalNamespace/OVRPlugin.hpp"
 #include "GlobalNamespace/BoolSO.hpp"
+#include "UnityEngine/Object.hpp"
+#include "UnityEngine/Resources.hpp"
+#include "UnityEngine/Component.hpp"
 #include "UnityEngine/Vector2Int.hpp"
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/Transform.hpp"
+#include "UnityEngine/Resources.hpp"
+#include "UnityEngine/RectTransform.hpp"
 #include "TMPro/TextMeshProUGUI.hpp"
+#include "TMPro/TMP_FontAsset.hpp"
 #include "Polyglot/Localization.hpp"
+#include "Polyglot/LocalizedTextMeshProUGUI.hpp"
+#include "Polyglot/Language.hpp"
 
 std::vector<std::string> ModeValues {"Disabled", "Mixed Reality", "First Person", "Third Person"};
 UnityEngine::Transform* SettingsContainer = nullptr;
@@ -32,7 +42,7 @@ void OnChangeSmoothing(float newval)
     getConfig().Write();
 }
 
-void OnChangeCameraMode(std::string newval)
+void OnChangeCameraMode_Deprecated(std::string newval)
 {
     getConfig().config["cameraMode"].SetString(newval, getConfig().config.GetAllocator());
     getConfig().Write();
@@ -43,10 +53,9 @@ void OnChangeCameraMode(std::string newval)
     if (!SettingsContainer) {
         SettingsContainer = UnityEngine::GameObject::Find(il2cpp_utils::newcsstr("OculusMRCSettings/SettingsContainer"))->get_transform();
     }
-    auto* boolsetting = SettingsContainer->GetComponentInChildren<GlobalNamespace::BoolSettingsController*>();
 
-    SettingsContainer->GetComponentInChildren<GlobalNamespace::BoolSettingsController*>()->settingsValue->value = !disabled;
-    SettingsContainer->GetComponentInChildren<GlobalNamespace::BoolSettingsController*>()->settingsValue->set_value(!disabled);
+    GlobalNamespace::BoolSO* boolsetting = GetMRCBoolSO();
+    boolsetting->set_value(!disabled);
 
     UnityEngine::Vector3 scale = UnityEngine::Vector3(0.9, 0.9, 0.9);
     if (mixedReality || disabled)
@@ -82,10 +91,32 @@ void SetWarningText(WarningText txtnum)
     warntext->SetText(il2cpp_utils::newcsstr(message));
 }
 
+// void LocalizeComponent()
+// {
+
+// }
+
+TMPro::TextMeshProUGUI* CreateLocalizableText(std::string key, UnityEngine::Transform* parent)
+{
+    Polyglot::LocalizedTextMeshProUGUI* polyglotTextObj = (Polyglot::LocalizedTextMeshProUGUI*)UnityEngine::Resources::FindObjectsOfTypeAll<Polyglot::LocalizedTextMeshProUGUI*>()->values[0];
+    TMPro::TextMeshProUGUI* localizedTMPro = polyglotTextObj->localizedComponent;    
+
+    TMPro::TextMeshProUGUI* newTextObj = UnityEngine::Object::Instantiate(localizedTMPro, parent->get_transform());
+    Il2CppString* localestr = Polyglot::Localization::Get(il2cpp_utils::newcsstr(key));
+    newTextObj->set_text(localestr);
+
+    return newTextObj;
+}
+
 std::string GetLocale(std::string key)
 {
     Il2CppString* localestr = Polyglot::Localization::Get(il2cpp_utils::newcsstr(key));
     return to_utf8(csstrtostr(localestr));
+}
+
+bool IsEnglish()
+{
+    return (Polyglot::Localization::get_Instance()->selectedLanguage == Polyglot::Language::English);
 }
 
 Array<UnityEngine::Vector2Int>* GetMRCResolutions()

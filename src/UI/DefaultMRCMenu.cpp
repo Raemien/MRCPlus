@@ -1,4 +1,4 @@
-#include "UI/UIHelper.hpp"
+#include "Helpers/UIHelper.hpp"
 #include "MRCConfig.hpp"
 #include "main.hpp"
 
@@ -50,7 +50,7 @@ void ModifyMRCMenu()
     mrcToggle->set_localScale(UnityEngine::Vector3::get_zero());
     
     HMUI::SimpleTextDropdown* mrcModeDropdown = QuestUI::BeatSaberUI::CreateDropdown(SettingsContainer->get_transform(), "Camera Mode", cameraMode, ModeValues,
-    [](std::string newval) {OnChangeCameraMode(newval);});
+    [](std::string newval) {OnChangeCameraMode_Deprecated(newval);});
 
     auto* resreference = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::WindowResolutionSettingsController*>()->values[0];
     auto* resolutionsetting = UnityEngine::Object::Instantiate(resreference, SettingsContainer);

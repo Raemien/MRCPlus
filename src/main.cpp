@@ -1,6 +1,8 @@
+#include "UI/SettingsMenu/MRCPlusFlowCoordinator.hpp"
+#include "UI/DefaultMRCMenu.hpp"
+#include "Helpers/UIHelper.hpp"
+#include "Helpers/ObjectHelper.hpp"
 #include "EmbeddedContent.hpp"
-#include "UI/UIHelper.hpp"
-#include "UI/MRCMenu.hpp"
 #include "MRCConfig.hpp"
 
 #include "modloader/shared/modloader.hpp"
@@ -11,7 +13,9 @@
 #include "beatsaber-hook/shared/utils/il2cpp-functions.hpp"
 #include "beatsaber-hook/shared/utils/typedefs.h"
 #include "beatsaber-hook/shared/config/config-utils.hpp"
+
 #include "questui/shared/QuestUI.hpp"
+#include "custom-types/shared/register.hpp"
 
 #include "GlobalNamespace/MainCamera.hpp"
 #include "GlobalNamespace/ConditionalActivation.hpp"
@@ -49,10 +53,8 @@
 #include "UnityEngine/Camera.hpp"
 #include "UnityEngine/Time.hpp"
 
-#include "System/Func_2.hpp"
-#include <regex>
-
 using namespace GlobalNamespace;
+using namespace MRCPlus;
 
 static ModInfo modInfo;
 
@@ -134,11 +136,6 @@ MAKE_HOOK_MATCH(OVRCameraRig_Start, &GlobalNamespace::OVRCameraRig::Start, void,
     SetAsymmetricFOV((float)fwidth, (float)fheight);
 }
 
-bool IsRegexMatch(Il2CppString* input, std::string pattern)
-{
-    return std::regex_search(to_utf8(csstrtostr(input)), std::regex(pattern));
-}
-
 MAKE_HOOK_FIND_CLASS(OVRPlugin_InitializeMR, "", "OVRPlugin", "InitializeMixedReality", void)
 {
     OVRPlugin_InitializeMR();
@@ -215,7 +212,7 @@ MAKE_HOOK_MATCH(OVRManager_LateUpdate, &GlobalNamespace::OVRManager::LateUpdate,
 MAKE_HOOK_MATCH(WindowResSetting_InitVals, &GlobalNamespace::WindowResolutionSettingsController::GetInitValues, bool, GlobalNamespace::WindowResolutionSettingsController* instance, int& index, int& size)
 {
     // Don't initialize our values as we'll set them manually
-    if (instance->get_transform()->get_parent() == SettingsContainer) return false;
+    if (strcmp(to_utf8(csstrtostr(instance->get_transform()->get_parent()->get_name())).c_str(), "MRCResolutionContainer") != 0) return false;
     WindowResSetting_InitVals(instance, index, size);
     return false;
 }
@@ -223,7 +220,7 @@ MAKE_HOOK_MATCH(WindowResSetting_InitVals, &GlobalNamespace::WindowResolutionSet
 MAKE_HOOK_MATCH(WindowResSetting_ApplyValue, &GlobalNamespace::WindowResolutionSettingsController::ApplyValue, void, GlobalNamespace::WindowResolutionSettingsController* instance, int index)
 {
     WindowResSetting_ApplyValue(instance, index);
-    if (instance->get_transform()->get_parent() != SettingsContainer) return;
+    if (strcmp(to_utf8(csstrtostr(instance->get_transform()->get_parent()->get_name())).c_str(), "MRCResolutionContainer") != 0) return;
     auto resolution = instance->windowResolutions->values[index];
     getConfig().config["width"].SetInt(resolution.get_x());
     getConfig().config["height"].SetInt(resolution.get_y());
@@ -297,4 +294,8 @@ extern "C" void load() {
     INSTALL_HOOK(getLogger(), OVRCameraRig_Start);
     INSTALL_HOOK(getLogger(), OVRExternalComposition_Update);
     INSTALL_HOOK(getLogger(), OVRManager_LateUpdate);
+
+    // Register types + UI
+    custom_types::Register::AutoRegister();
+    QuestUI::Register::RegisterModSettingsFlowCoordinator<MRCPlus::MRCPlusFlowCoordinator*>(modInfo);
 }
