@@ -5,10 +5,6 @@
 #include "MRCConfig.hpp"
 #include "main.hpp"
 
-#include <dirent.h>
-#include <regex>
-#include <list>
-
 #include "questui/shared/BeatSaberUI.hpp"
 #include "questui/shared/CustomTypes/Components/Backgroundable.hpp"
 #include "questui/shared/CustomTypes/Components/ExternalComponents.hpp"

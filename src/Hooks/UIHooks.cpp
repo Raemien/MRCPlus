@@ -47,7 +47,7 @@ MAKE_HOOK_MATCH(SettingsNavController_DidActivate, &GlobalNamespace::SettingsNav
     SettingsContainer = instance->get_transform()->Find(il2cpp_utils::newcsstr("OculusMRCSettings/SettingsContainer"));
     if (SettingsContainer == nullptr) SettingsContainer = instance->get_transform()->Find(il2cpp_utils::newcsstr("Container/OculusMRCSettings/SettingsContainer"));
 
-    // Apply MRC+'s modified menu
+    // Modifiy the base-game MRC menu
     if (firstActivation && addedToHierarchy) ModifyMRCMenu();
 }
 

@@ -6,8 +6,6 @@
 #include "questui/shared/CustomTypes/Components/Backgroundable.hpp"
 #include "questui/shared/CustomTypes/Components/Settings/IncrementSetting.hpp"
 
-#include <map>
-
 #include "UnityEngine/Object.hpp"
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/Transform.hpp"
@@ -38,6 +36,24 @@ void OnChangeUseHotkey(bool newval)
     getConfig().config["useCameraHotkey"].SetBool(newval);
     getConfig().Write();
 }
+
+void OnChangeFov(float newval)
+{
+    auto& modcfg = getConfig().config;
+    float width = (float)modcfg["width"].GetInt();
+    float height = (float)modcfg["height"].GetInt();
+    modcfg["fov"].SetInt(newval);
+    getConfig().Write();
+    SetAsymmetricFOV(width, height);
+}
+
+void OnChangeSmoothing(float newval)
+{
+    getConfig().config["positionSmoothness"].SetFloat(newval);
+    getConfig().config["rotationSmoothness"].SetFloat(newval);
+    getConfig().Write();
+}
+
 
 void MRCPlusCameraView::DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
 {

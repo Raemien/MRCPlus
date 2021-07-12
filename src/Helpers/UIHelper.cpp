@@ -33,72 +33,6 @@
 std::vector<std::string> ModeValues {"Disabled", "Mixed Reality", "First Person", "Third Person"};
 UnityEngine::Transform* SettingsContainer = nullptr;
 
-void OnChangeFov(float newval)
-{
-    auto& modcfg = getConfig().config;
-    float width = (float)modcfg["width"].GetInt();
-    float height = (float)modcfg["height"].GetInt();
-    modcfg["fov"].SetInt(newval);
-    getConfig().Write();
-    SetAsymmetricFOV(width, height);
-}
-
-void OnChangeSmoothing(float newval)
-{
-    getConfig().config["positionSmoothness"].SetFloat(newval);
-    getConfig().config["rotationSmoothness"].SetFloat(newval);
-    getConfig().Write();
-}
-
-void OnChangeCameraMode_Deprecated(std::string newval)
-{
-    getConfig().config["cameraMode"].SetString(newval, getConfig().config.GetAllocator());
-    getConfig().Write();
-    float width = (float)getConfig().config["width"].GetInt();
-    float height = (float)getConfig().config["height"].GetInt();
-    bool mixedReality = (newval == "Mixed Reality");
-    bool disabled = (newval == "Disabled");
-    if (!SettingsContainer) {
-        SettingsContainer = UnityEngine::GameObject::Find(il2cpp_utils::newcsstr("OculusMRCSettings/SettingsContainer"))->get_transform();
-    }
-
-    GlobalNamespace::BoolSO* boolsetting = GetMRCBoolSO();
-    boolsetting->set_value(!disabled);
-
-    UnityEngine::Vector3 scale = UnityEngine::Vector3(0.9, 0.9, 0.9);
-    if (mixedReality || disabled)
-    {
-        GlobalNamespace::OVRPlugin::OverrideExternalCameraFov(0, true, mrcInfo.FOVPort);
-        scale = UnityEngine::Vector3::get_zero();
-    }
-    else SetAsymmetricFOV(width, height);
-    
-    auto* subcontainer = SettingsContainer->Find(il2cpp_utils::newcsstr("NonMRSubContainer"));
-    subcontainer->set_localScale(scale);
-}
-
-void SetWarningText(WarningText txtnum)
-{
-    TMPro::TextMeshProUGUI* warntext = SettingsContainer->Find(il2cpp_utils::newcsstr("WarningText"))->GetComponent<TMPro::TextMeshProUGUI*>();
-    std::string message;
-    switch (txtnum)
-    {
-    case WarningText::PerfWarning:
-        message = "WARNING: These settings will impact your performance.";
-        break;
-    case WarningText::RestartGame:
-        message = "NOTE: Restart your game to apply these settings.";
-        break;
-    case WarningText::RestartOBS:
-        message = "NOTE: Reconnect via OBS to apply these settings.";
-        break;
-    default:
-        message = "For more information on how to set up MRC, please visit Oculus's setup guide.";
-        break;
-    }
-    warntext->SetText(il2cpp_utils::newcsstr(message));
-}
-
 void LocalizeComponent(QuestUI::IncrementSetting* component, std::string key)
 {
     TMPro::TextMeshProUGUI* labelObj = component->GetComponentInChildren<TMPro::TextMeshProUGUI*>();
@@ -139,12 +73,6 @@ TMPro::TextMeshProUGUI* CreateLocalizableText(std::string key, UnityEngine::Tran
     newTextObj->set_text(localestr);
 
     return newTextObj;
-}
-
-std::string GetLocale(std::string key)
-{
-    Il2CppString* localestr = Polyglot::Localization::Get(il2cpp_utils::newcsstr(key));
-    return to_utf8(csstrtostr(localestr));
 }
 
 bool IsEnglish()

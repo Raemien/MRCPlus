@@ -4,8 +4,6 @@
 #include "UI/SharedUIManager.hpp"
 #include "UI/SettingsMenu/MRCPlusGraphicsView.hpp"
 
-#include <string>
-
 #include "questui/shared/BeatSaberUI.hpp"
 #include "questui/shared/CustomTypes/Components/Backgroundable.hpp"
 #include "questui/shared/CustomTypes/Components/Settings/IncrementSetting.hpp"
