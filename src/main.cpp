@@ -107,6 +107,11 @@ void CreateReferenceObject()
 
         // Viewfinder
         cubeObj->GetComponent<UnityEngine::Renderer*>()->get_material()->SetTexture(il2cpp_utils::newcsstr("_MainTex"), (UnityEngine::Texture*)camTexture);
+
+        // Apply visibility
+        bool isVisible = getConfig().config["showViewfinder"].GetBool();
+        ApplyViewfinderVisibility(isVisible);
+
     }
 }
 

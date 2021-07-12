@@ -9,6 +9,7 @@ struct Config_t
 {
     std::string cameraMode = "Disabled";
     bool useCameraHotkey = false;
+    bool showViewfinder = false;
     bool enablePCWalls = false;
     bool enableTransparentWalls = false;
     int width = 1280;
@@ -33,6 +34,7 @@ void SetupConfig()
     auto& allocator = getConfig().config.GetAllocator();
     getConfig().config.AddMember("cameraMode", Settings.cameraMode, allocator);
     getConfig().config.AddMember("useCameraHotkey", Settings.useCameraHotkey, allocator);
+    getConfig().config.AddMember("showViewfinder", Settings.showViewfinder, allocator);
     getConfig().config.AddMember("enablePCWalls", Settings.enablePCWalls, allocator);
     getConfig().config.AddMember("enableTransparentWalls", Settings.enableTransparentWalls, allocator);
     getConfig().config.AddMember("width", Settings.width, allocator);
@@ -55,6 +57,7 @@ bool LoadConfig()
     getConfig().Load();
     if(!getConfig().config.HasMember("cameraMode") || !getConfig().config["cameraMode"].IsString()) return false;
     if(!getConfig().config.HasMember("useCameraHotkey") || !getConfig().config["useCameraHotkey"].IsBool()) return false;
+    if(!getConfig().config.HasMember("showViewfinder") || !getConfig().config["showViewfinder"].IsBool()) return false;
     if(!getConfig().config.HasMember("enablePCWalls") || !getConfig().config["enablePCWalls"].IsBool()) return false;
     if(!getConfig().config.HasMember("enableTransparentWalls") || !getConfig().config["enableTransparentWalls"].IsBool()) return false;
     if(!getConfig().config.HasMember("width") || !getConfig().config["width"].IsInt()) return false;

@@ -1,4 +1,5 @@
 #include "UI/SettingsMenu/MRCPlusCameraView.hpp"
+#include "Helpers/ObjectHelper.hpp"
 #include "Helpers/UIHelper.hpp"
 #include "main.hpp"
 
@@ -14,6 +15,7 @@
 #include "UnityEngine/RectTransform.hpp"
 #include "UnityEngine/RectOffset.hpp"
 #include "HMUI/ViewController.hpp"
+#include "UnityEngine/UI/Toggle.hpp"
 #include "UnityEngine/UI/Selectable.hpp"
 #include "UnityEngine/UI/LayoutElement.hpp"
 #include "UnityEngine/UI/ContentSizeFitter.hpp"
@@ -32,6 +34,13 @@ void MRCPlusCameraView::OnChangeVisibility(bool newval)
     CameraView->camContainer->get_gameObject()->SetActive(newval);
 }
 
+void OnChangeShowViewfinder(bool newval)
+{
+    getConfig().config["showViewfinder"].SetBool(newval);
+    getConfig().Write();
+    ApplyViewfinderVisibility(newval);
+}
+
 void MRCPlusCameraView::DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
 {
     CameraView = this;
@@ -40,6 +49,7 @@ void MRCPlusCameraView::DidActivate(bool firstActivation, bool addedToHierarchy,
         auto& modcfg = getConfig().config;
         std::string cameraMode = modcfg["cameraMode"].GetString();
         float smoothpos = modcfg["positionSmoothness"].GetFloat();
+        bool showViewfinder = modcfg[""].GetBool();
         int height = modcfg["height"].GetInt();
         int width = modcfg["width"].GetInt();
         int userfov = modcfg["fov"].GetInt();
@@ -63,11 +73,13 @@ void MRCPlusCameraView::DidActivate(bool firstActivation, bool addedToHierarchy,
         subContainer->set_childForceExpandHeight(false);
         subContainer->set_childControlHeight(true);
 
-        QuestUI::IncrementSetting* fovinc = QuestUI::BeatSaberUI::CreateIncrementSetting(subContainer->get_rectTransform(), GetLocale("SETTINGS_FIELD_OF_VIEW"), 0, (int)5, userfov, 70, 120, OnChangeFov);
-        fovinc->GetComponent<UnityEngine::UI::LayoutElement*>()->set_preferredHeight(6.2f);
+        QuestUI::IncrementSetting* fovInc = QuestUI::BeatSaberUI::CreateIncrementSetting(subContainer->get_rectTransform(), GetLocale("SETTINGS_FIELD_OF_VIEW"), 0, (int)5, userfov, 70, 120, OnChangeFov);
+        fovInc->GetComponent<UnityEngine::UI::LayoutElement*>()->set_preferredHeight(6.2f);
 
-        QuestUI::IncrementSetting* smoothposinc = QuestUI::BeatSaberUI::CreateIncrementSetting(subContainer->get_rectTransform(), GetLocale("SETTINGS_SMOOTHNESS"), 0, (int)1, smoothpos, 0, 10, OnChangeSmoothing);
-        smoothposinc->GetComponent<UnityEngine::UI::LayoutElement*>()->set_preferredHeight(6.2f);
+        QuestUI::IncrementSetting* smoothposInc = QuestUI::BeatSaberUI::CreateIncrementSetting(subContainer->get_rectTransform(), GetLocale("SETTINGS_SMOOTHNESS"), 0, (int)1, smoothpos, 0, 10, OnChangeSmoothing);
+        smoothposInc->GetComponent<UnityEngine::UI::LayoutElement*>()->set_preferredHeight(6.2f);
+
+        UnityEngine::UI::Toggle* viewfinderToggle = QuestUI::BeatSaberUI::CreateToggle(subContainer->get_rectTransform(), "Show Viewfinder", showViewfinder, UnityEngine::Vector2(0, 0), OnChangeShowViewfinder);
     }
 }
 
