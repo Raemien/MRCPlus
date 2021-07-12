@@ -6,6 +6,7 @@
 #include "beatsaber-hook/shared/utils/il2cpp-functions.hpp"
 
 #include "UnityEngine/GameObject.hpp"
+#include "UnityEngine/RenderTexture.hpp"
 
 #include "GlobalNamespace/OVRPlugin_CameraIntrinsics.hpp"
 #include "GlobalNamespace/OVRPlugin.hpp"
@@ -16,6 +17,10 @@ extern Logger& getLogger();
 
 extern void SetAsymmetricFOV(float width, float height);
 
+extern void CreateReferenceObject();
+
 extern UnityEngine::GameObject* rotationRef;
+
+extern UnityEngine::RenderTexture* camTexture;
 
 extern GlobalNamespace::OVRPlugin::CameraIntrinsics mrcInfo;
