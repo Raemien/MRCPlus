@@ -41,6 +41,12 @@ void OnChangeShowViewfinder(bool newval)
     ApplyViewfinderVisibility(newval);
 }
 
+void OnChangeUseHotkey(bool newval)
+{
+    getConfig().config["useCameraHotkey"].SetBool(newval);
+    getConfig().Write();
+}
+
 void MRCPlusCameraView::DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
 {
     CameraView = this;
@@ -49,7 +55,8 @@ void MRCPlusCameraView::DidActivate(bool firstActivation, bool addedToHierarchy,
         auto& modcfg = getConfig().config;
         std::string cameraMode = modcfg["cameraMode"].GetString();
         float smoothpos = modcfg["positionSmoothness"].GetFloat();
-        bool showViewfinder = modcfg[""].GetBool();
+        bool useCameraHotkey = modcfg["useCameraHotkey"].GetBool();
+        bool showViewfinder = modcfg["showViewfinder"].GetBool();
         int height = modcfg["height"].GetInt();
         int width = modcfg["width"].GetInt();
         int userfov = modcfg["fov"].GetInt();
@@ -77,6 +84,9 @@ void MRCPlusCameraView::DidActivate(bool firstActivation, bool addedToHierarchy,
 
         QuestUI::IncrementSetting* smoothposInc = QuestUI::BeatSaberUI::CreateIncrementSetting(subContainer->get_rectTransform(), GetLocale("SETTINGS_SMOOTHNESS"), 0, (int)1, smoothpos, 0, 10, OnChangeSmoothing);
         smoothposInc->GetComponent<UnityEngine::UI::LayoutElement*>()->set_preferredHeight(6.2f);
+
+        UnityEngine::UI::Toggle* hotkeyToggle = QuestUI::BeatSaberUI::CreateToggle(subContainer->get_rectTransform(), "Use Camera Hotkey", useCameraHotkey, UnityEngine::Vector2(0, 0), OnChangeUseHotkey);
+        QuestUI::BeatSaberUI::AddHoverHint(hotkeyToggle->get_gameObject(), "Switch the camera perspective using the 'X' button.");
 
         UnityEngine::UI::Toggle* viewfinderToggle = QuestUI::BeatSaberUI::CreateToggle(subContainer->get_rectTransform(), "Show Viewfinder", showViewfinder, UnityEngine::Vector2(0, 0), OnChangeShowViewfinder);
     }
