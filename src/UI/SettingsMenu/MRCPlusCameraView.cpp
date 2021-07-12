@@ -56,6 +56,7 @@ void MRCPlusCameraView::DidActivate(bool firstActivation, bool addedToHierarchy,
 
         this->camContainer = QuestUI::BeatSaberUI::CreateVerticalLayoutGroup(get_rectTransform());
         camContainer->set_spacing(0.2f);
+        camContainer->set_childControlHeight(true);
         camContainer->GetComponent<UnityEngine::UI::LayoutElement*>()->set_minWidth(25.0);
 
         // Title
@@ -64,14 +65,12 @@ void MRCPlusCameraView::DidActivate(bool firstActivation, bool addedToHierarchy,
         titlecontainer->set_padding(UnityEngine::RectOffset::New_ctor(10, 10, 0, 0));
         titlecontainer->GetComponent<UnityEngine::UI::ContentSizeFitter*>()->set_horizontalFit(2);
 
-        auto* titletext = QuestUI::BeatSaberUI::CreateText(titlecontainer->get_rectTransform(), GetLocale("MENU_CAMERA"), false);
+        auto* titletext = CreateLocalizableText("MENU_CAMERA", titlecontainer->get_rectTransform(), false);
         titletext->set_alignment(TMPro::TextAlignmentOptions::Center);
         titletext->set_fontSize(10);
 
         UnityEngine::UI::VerticalLayoutGroup* subContainer = QuestUI::BeatSaberUI::CreateVerticalLayoutGroup(camContainer->get_rectTransform());
-        subContainer->set_childAlignment(UnityEngine::TextAnchor::UpperCenter);
-        subContainer->set_childForceExpandHeight(false);
-        subContainer->set_childControlHeight(true);
+        subContainer->GetComponent<UnityEngine::UI::ContentSizeFitter*>()->set_verticalFit(2);
 
         QuestUI::IncrementSetting* fovInc = QuestUI::BeatSaberUI::CreateIncrementSetting(subContainer->get_rectTransform(), GetLocale("SETTINGS_FIELD_OF_VIEW"), 0, (int)5, userfov, 70, 120, OnChangeFov);
         fovInc->GetComponent<UnityEngine::UI::LayoutElement*>()->set_preferredHeight(6.2f);

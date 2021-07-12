@@ -9,6 +9,7 @@
 #include "GlobalNamespace/OVRPlugin.hpp"
 #include "GlobalNamespace/BoolSO.hpp"
 #include "UnityEngine/Object.hpp"
+#include "UnityEngine/Vector2.hpp"
 #include "UnityEngine/Resources.hpp"
 #include "UnityEngine/Component.hpp"
 #include "UnityEngine/Vector2Int.hpp"
@@ -18,6 +19,7 @@
 #include "UnityEngine/RectTransform.hpp"
 #include "TMPro/TextMeshProUGUI.hpp"
 #include "TMPro/TMP_FontAsset.hpp"
+#include "TMPro/FontStyles.hpp"
 #include "Polyglot/Localization.hpp"
 #include "Polyglot/LocalizedTextMeshProUGUI.hpp"
 #include "Polyglot/Language.hpp"
@@ -96,13 +98,17 @@ void SetWarningText(WarningText txtnum)
 
 // }
 
-TMPro::TextMeshProUGUI* CreateLocalizableText(std::string key, UnityEngine::Transform* parent)
+TMPro::TextMeshProUGUI* CreateLocalizableText(std::string key, UnityEngine::Transform* parent, bool italics)
 {
     Polyglot::LocalizedTextMeshProUGUI* polyglotTextObj = (Polyglot::LocalizedTextMeshProUGUI*)UnityEngine::Resources::FindObjectsOfTypeAll<Polyglot::LocalizedTextMeshProUGUI*>()->values[0];
     TMPro::TextMeshProUGUI* localizedTMPro = polyglotTextObj->localizedComponent;    
 
-    TMPro::TextMeshProUGUI* newTextObj = UnityEngine::Object::Instantiate(localizedTMPro, parent->get_transform());
+    TMPro::TextMeshProUGUI* newTextObj = UnityEngine::Object::Instantiate(localizedTMPro, parent->get_transform(), false);
+    UnityEngine::Object::Destroy(newTextObj->GetComponent<Polyglot::LocalizedTextMeshProUGUI*>());
     Il2CppString* localestr = Polyglot::Localization::Get(il2cpp_utils::newcsstr(key));
+    newTextObj->get_rectTransform()->set_sizeDelta(UnityEngine::Vector2(60.0f, 10.0f));
+    newTextObj->set_enableAutoSizing(false);
+    newTextObj->set_fontStyle(italics ? TMPro::FontStyles::Italic : TMPro::FontStyles::Normal);
     newTextObj->set_text(localestr);
 
     return newTextObj;

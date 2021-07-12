@@ -71,6 +71,7 @@ void MRCPlusGraphicsView::DidActivate(bool firstActivation, bool addedToHierarch
 
         this->gfxContainer = QuestUI::BeatSaberUI::CreateVerticalLayoutGroup(get_rectTransform());
         gfxContainer->set_spacing(0.2f);
+        gfxContainer->set_childControlHeight(true);
         gfxContainer->GetComponent<UnityEngine::UI::LayoutElement*>()->set_minWidth(25.0);
 
         // Title
@@ -79,18 +80,19 @@ void MRCPlusGraphicsView::DidActivate(bool firstActivation, bool addedToHierarch
         titlecontainer->set_padding(UnityEngine::RectOffset::New_ctor(10, 10, 0, 0));
         titlecontainer->GetComponent<UnityEngine::UI::ContentSizeFitter*>()->set_horizontalFit(2);
 
-        auto* titletext = QuestUI::BeatSaberUI::CreateText(titlecontainer->get_rectTransform(), GetLocale("MENU_GRAPHICS"), false);
+        auto* titletext = CreateLocalizableText("MENU_GRAPHICS", titlecontainer->get_rectTransform(), false);
         titletext->set_alignment(TMPro::TextAlignmentOptions::Center);
         titletext->set_fontSize(10);
 
         // Config Panel
         UnityEngine::UI::VerticalLayoutGroup* subcontainer = QuestUI::BeatSaberUI::CreateVerticalLayoutGroup(gfxContainer->get_rectTransform());
-        subcontainer->set_childAlignment(UnityEngine::TextAnchor::UpperCenter);
-        subcontainer->set_childForceExpandHeight(false);
-        subcontainer->set_childControlHeight(true);
+        subcontainer->GetComponent<UnityEngine::UI::ContentSizeFitter*>()->set_verticalFit(2);
 
         this->pcWallToggle = QuestUI::BeatSaberUI::CreateToggle(subcontainer->get_rectTransform(), IsEnglish() ? "PC Walls" : GetLocale("SETTINGS_SCREEN_DISTORTION_EFFECTS"), enablePCWalls, UnityEngine::Vector2(0, 0), OnChangePCWalls);
+        QuestUI::BeatSaberUI::AddHoverHint(pcWallToggle->get_gameObject(), "Use CPU-intensive PC walls in the output. WARNING: May cause visual issues in VR!");
+        
         this->transparentWallToggle = QuestUI::BeatSaberUI::CreateToggle(subcontainer->get_rectTransform(), IsEnglish() ? "Transparent Walls" : GetLocale("MODIFIER_NO_OBSTACLES"), enableInvisWalls, UnityEngine::Vector2(0, 0), OnChangeTransparentWalls);
+        QuestUI::BeatSaberUI::AddHoverHint(transparentWallToggle->get_gameObject(), "Use transparent walls in the output.");
         // this->ReloadUIValues();
     }
 }

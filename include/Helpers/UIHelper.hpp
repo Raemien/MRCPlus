@@ -19,7 +19,7 @@ extern std::vector<std::string> ModeValues;
 
 extern std::string GetModeText(int mode);
 
-extern TMPro::TextMeshProUGUI* CreateLocalizableText(std::string key, UnityEngine::Transform* parent);
+extern TMPro::TextMeshProUGUI* CreateLocalizableText(std::string key, UnityEngine::Transform* parent, bool italics = true);
 
 extern std::string GetLocale(std::string key);
 

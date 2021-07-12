@@ -24,6 +24,7 @@
 #include "UnityEngine/RectOffset.hpp"
 #include "UnityEngine/UI/Button.hpp"
 #include "UnityEngine/UI/LayoutElement.hpp"
+#include "UnityEngine/UI/ContentSizeFitter.hpp"
 #include "UnityEngine/UI/VerticalLayoutGroup.hpp"
 #include "UnityEngine/UI/HorizontalLayoutGroup.hpp"
 #include "UnityEngine/Events/UnityAction.hpp"
@@ -70,13 +71,14 @@ void MRCPlusMainView::DidActivate(bool firstActivation, bool addedToHierarchy, b
 
         UnityEngine::UI::VerticalLayoutGroup* container = QuestUI::BeatSaberUI::CreateVerticalLayoutGroup(get_rectTransform());
         container->set_padding(UnityEngine::RectOffset::New_ctor(2, 2, 2, 2));
-        container->set_childControlHeight(true);
-        container->set_childForceExpandHeight(false);
-        container->GetComponent<UnityEngine::UI::LayoutElement*>()->set_minWidth(25.0);
+        container->set_childControlHeight(false);
+        container->set_childForceExpandHeight(true);
 
         this->configcontainer = QuestUI::BeatSaberUI::CreateVerticalLayoutGroup(container->get_rectTransform());
         configcontainer->set_padding(UnityEngine::RectOffset::New_ctor(2, 2, 2, 2));
-        configcontainer->set_childAlignment(UnityEngine::TextAnchor::UpperCenter);
+        configcontainer->set_childAlignment(UnityEngine::TextAnchor::MiddleLeft);
+        configcontainer->GetComponent<UnityEngine::UI::ContentSizeFitter*>()->set_horizontalFit(2);
+        configcontainer->GetComponent<UnityEngine::UI::ContentSizeFitter*>()->set_verticalFit(2);
         configcontainer->GetComponent<UnityEngine::UI::LayoutElement*>()->set_preferredWidth(110);
 
         std::string modetext = GetLocale("MENU_CAMERA") + " Mode"; // Truly, a piece of linguistic genius.
@@ -89,13 +91,13 @@ void MRCPlusMainView::DidActivate(bool firstActivation, bool addedToHierarchy, b
         infoText->set_alignment(TMPro::TextAlignmentOptions::Center);
         infoText->set_fontSize(4);
 
-        UnityEngine::UI::VerticalLayoutGroup* rescontainer = QuestUI::BeatSaberUI::CreateVerticalLayoutGroup(container->get_rectTransform());
+        UnityEngine::UI::VerticalLayoutGroup* rescontainer = QuestUI::BeatSaberUI::CreateVerticalLayoutGroup(configcontainer->get_rectTransform());
         rescontainer->set_name(il2cpp_utils::newcsstr("MRCResolutionContainer"));
         rescontainer->set_childAlignment(UnityEngine::TextAnchor::UpperCenter);
         rescontainer->GetComponent<UnityEngine::UI::LayoutElement*>()->set_preferredWidth(110);
         
         auto* resreference = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::WindowResolutionSettingsController*>()->values[0];
-        auto* resolutionsetting = UnityEngine::Object::Instantiate(resreference, rescontainer->get_transform());
+        auto* resolutionsetting = UnityEngine::Object::Instantiate(resreference, rescontainer->get_transform(), false);
         resolutionsetting->windowResolutions = GetMRCResolutions();
         resolutionsetting->numberOfElements = resolutionsetting->windowResolutions->Length();
         for (size_t i = 0; i < resolutionsetting->numberOfElements; i++)
@@ -108,7 +110,8 @@ void MRCPlusMainView::DidActivate(bool firstActivation, bool addedToHierarchy, b
         }
         resolutionsetting->set_text(il2cpp_utils::newcsstr(std::to_string(width) + " x " + std::to_string(height)));
 
-        TMPro::TextMeshProUGUI* warningText = CreateLocalizableText("SETTINGS_OCULUS_MRC_WARNING", rescontainer->get_transform());
+        TMPro::TextMeshProUGUI* warningText = CreateLocalizableText("SETTINGS_OCULUS_MRC_WARNING", configcontainer->get_transform());
+        warningText->set_enableWordWrapping(true);
         warningText->set_color(UnityEngine::Color(0.12549f, 0.75294f, 1.0f, 1.0f));
         warningText->set_fontSize(4);
     }
