@@ -140,6 +140,12 @@ MAKE_HOOK_FIND_CLASS(OVRPlugin_InitializeMR, "", "OVRPlugin", "InitializeMixedRe
 {
     OVRPlugin_InitializeMR();
     CreateReferenceObject();
+
+    auto& modcfg = getConfig().config;
+    int fwidth = modcfg["width"].GetInt();
+    int fheight = modcfg["height"].GetInt();
+    OVRPlugin::Media::SetMrcFrameSize(fwidth, fheight);
+
     getLogger().info("[MRCPlus] Mixed Reality Capture initialized.");
 }
 
@@ -212,7 +218,7 @@ MAKE_HOOK_MATCH(OVRManager_LateUpdate, &GlobalNamespace::OVRManager::LateUpdate,
 MAKE_HOOK_MATCH(WindowResSetting_InitVals, &GlobalNamespace::WindowResolutionSettingsController::GetInitValues, bool, GlobalNamespace::WindowResolutionSettingsController* instance, int& index, int& size)
 {
     // Don't initialize our values as we'll set them manually
-    if (strcmp(to_utf8(csstrtostr(instance->get_transform()->get_parent()->get_name())).c_str(), "MRCResolutionContainer") != 0) return false;
+    if (strcmp(to_utf8(csstrtostr(instance->get_transform()->get_parent()->get_name())).c_str(), "MRCResolutionContainer") == 0) return false;
     WindowResSetting_InitVals(instance, index, size);
     return false;
 }
@@ -229,7 +235,7 @@ MAKE_HOOK_MATCH(WindowResSetting_ApplyValue, &GlobalNamespace::WindowResolutionS
     if (OVRPlugin::IsMixedRealityInitialized()) 
     {
         OVRPlugin::Media::SetMrcFrameSize(resolution.get_x(), resolution.get_y());
-        SetWarningText(WarningText::RestartOBS);
+        // SetWarningText(WarningText::RestartOBS);
     }
 }
 
@@ -259,7 +265,7 @@ MAKE_HOOK_MATCH(ConditionalMaterialSwitcher_Awake, &GlobalNamespace::Conditional
 MAKE_HOOK_MATCH(ConditionalActivation_Awake, &GlobalNamespace::ConditionalActivation::Awake, void, GlobalNamespace::ConditionalActivation* instance)
 {
     ConditionalActivation_Awake(instance);
-    if (IsRegexMatch(instance->get_name(), "GrabPassTexture1|DepthWrite") && getConfig().config["enablePCWalls"].GetBool())
+    if (IsRegexMatch(instance->get_name(), "GrabPassTexture1") && getConfig().config["enablePCWalls"].GetBool())
     {
         instance->get_gameObject()->SetActive(true);
     }
