@@ -1,5 +1,4 @@
 #include "UI/SettingsMenu/MRCPlusCameraView.hpp"
-#include "Helpers/ObjectHelper.hpp"
 #include "Helpers/UIHelper.hpp"
 #include "main.hpp"
 
@@ -34,13 +33,6 @@ void MRCPlusCameraView::OnChangeVisibility(bool newval)
     CameraView->camContainer->get_gameObject()->SetActive(newval);
 }
 
-void OnChangeShowViewfinder(bool newval)
-{
-    getConfig().config["showViewfinder"].SetBool(newval);
-    getConfig().Write();
-    ApplyViewfinderVisibility(newval);
-}
-
 void OnChangeUseHotkey(bool newval)
 {
     getConfig().config["useCameraHotkey"].SetBool(newval);
@@ -56,7 +48,6 @@ void MRCPlusCameraView::DidActivate(bool firstActivation, bool addedToHierarchy,
         std::string cameraMode = modcfg["cameraMode"].GetString();
         float smoothpos = modcfg["positionSmoothness"].GetFloat();
         bool useCameraHotkey = modcfg["useCameraHotkey"].GetBool();
-        bool showViewfinder = modcfg["showViewfinder"].GetBool();
         int height = modcfg["height"].GetInt();
         int width = modcfg["width"].GetInt();
         int userfov = modcfg["fov"].GetInt();
@@ -79,16 +70,16 @@ void MRCPlusCameraView::DidActivate(bool firstActivation, bool addedToHierarchy,
         UnityEngine::UI::VerticalLayoutGroup* subContainer = QuestUI::BeatSaberUI::CreateVerticalLayoutGroup(camContainer->get_rectTransform());
         subContainer->GetComponent<UnityEngine::UI::ContentSizeFitter*>()->set_verticalFit(2);
 
-        QuestUI::IncrementSetting* fovInc = QuestUI::BeatSaberUI::CreateIncrementSetting(subContainer->get_rectTransform(), GetLocale("SETTINGS_FIELD_OF_VIEW"), 0, (int)5, userfov, 70, 120, OnChangeFov);
-        fovInc->GetComponent<UnityEngine::UI::LayoutElement*>()->set_preferredHeight(6.2f);
-
-        QuestUI::IncrementSetting* smoothposInc = QuestUI::BeatSaberUI::CreateIncrementSetting(subContainer->get_rectTransform(), GetLocale("SETTINGS_SMOOTHNESS"), 0, (int)1, smoothpos, 0, 10, OnChangeSmoothing);
-        smoothposInc->GetComponent<UnityEngine::UI::LayoutElement*>()->set_preferredHeight(6.2f);
-
         UnityEngine::UI::Toggle* hotkeyToggle = QuestUI::BeatSaberUI::CreateToggle(subContainer->get_rectTransform(), "Use Camera Hotkey", useCameraHotkey, UnityEngine::Vector2(0, 0), OnChangeUseHotkey);
         QuestUI::BeatSaberUI::AddHoverHint(hotkeyToggle->get_gameObject(), "Switch the camera perspective using the 'X' button.");
 
-        UnityEngine::UI::Toggle* viewfinderToggle = QuestUI::BeatSaberUI::CreateToggle(subContainer->get_rectTransform(), "Show Viewfinder", showViewfinder, UnityEngine::Vector2(0, 0), OnChangeShowViewfinder);
+        QuestUI::IncrementSetting* fovInc = QuestUI::BeatSaberUI::CreateIncrementSetting(subContainer->get_rectTransform(), "", 0, (int)5, userfov, 70, 120, OnChangeFov);
+        fovInc->GetComponent<UnityEngine::UI::LayoutElement*>()->set_preferredHeight(6.2f);
+        LocalizeComponent(fovInc, "SETTINGS_FIELD_OF_VIEW");
+
+        QuestUI::IncrementSetting* smoothposInc = QuestUI::BeatSaberUI::CreateIncrementSetting(subContainer->get_rectTransform(), "", 0, (int)1, smoothpos, 0, 10, OnChangeSmoothing);
+        smoothposInc->GetComponent<UnityEngine::UI::LayoutElement*>()->set_preferredHeight(6.2f);
+        LocalizeComponent(smoothposInc, "SETTINGS_SMOOTHNESS");
     }
 }
 

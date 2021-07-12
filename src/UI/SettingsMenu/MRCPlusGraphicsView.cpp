@@ -1,5 +1,6 @@
 #include "main.hpp"
 #include "Helpers/UIHelper.hpp"
+#include "Helpers/ObjectHelper.hpp"
 #include "UI/SharedUIManager.hpp"
 #include "UI/SettingsMenu/MRCPlusGraphicsView.hpp"
 
@@ -32,6 +33,13 @@ MRCPlusGraphicsView* GraphicsView;
 void MRCPlusGraphicsView::OnChangeVisibility(bool newval)
 {
     this->gfxContainer->get_gameObject()->SetActive(newval);
+}
+
+void OnChangeShowViewfinder(bool newval)
+{
+    getConfig().config["showViewfinder"].SetBool(newval);
+    getConfig().Write();
+    ApplyViewfinderVisibility(newval);
 }
 
 void OnChangePCWalls(bool newval)
@@ -68,6 +76,7 @@ void MRCPlusGraphicsView::DidActivate(bool firstActivation, bool addedToHierarch
         auto& modcfg = getConfig().config;
         bool enablePCWalls = modcfg["enablePCWalls"].GetBool();
         bool enableInvisWalls = modcfg["enableTransparentWalls"].GetBool();
+        bool showViewfinder = modcfg["showViewfinder"].GetBool();
 
         this->gfxContainer = QuestUI::BeatSaberUI::CreateVerticalLayoutGroup(get_rectTransform());
         gfxContainer->set_spacing(0.2f);
@@ -88,12 +97,15 @@ void MRCPlusGraphicsView::DidActivate(bool firstActivation, bool addedToHierarch
         UnityEngine::UI::VerticalLayoutGroup* subcontainer = QuestUI::BeatSaberUI::CreateVerticalLayoutGroup(gfxContainer->get_rectTransform());
         subcontainer->GetComponent<UnityEngine::UI::ContentSizeFitter*>()->set_verticalFit(2);
 
-        this->pcWallToggle = QuestUI::BeatSaberUI::CreateToggle(subcontainer->get_rectTransform(), IsEnglish() ? "PC Walls" : GetLocale("SETTINGS_SCREEN_DISTORTION_EFFECTS"), enablePCWalls, UnityEngine::Vector2(0, 0), OnChangePCWalls);
+        UnityEngine::UI::Toggle* viewfinderToggle = QuestUI::BeatSaberUI::CreateToggle(subcontainer->get_rectTransform(), "Show Viewfinder", showViewfinder, UnityEngine::Vector2(0, 0), OnChangeShowViewfinder);
+
+        this->pcWallToggle = QuestUI::BeatSaberUI::CreateToggle(subcontainer->get_rectTransform(), "PC Walls", enablePCWalls, UnityEngine::Vector2(0, 0), OnChangePCWalls);
         QuestUI::BeatSaberUI::AddHoverHint(pcWallToggle->get_gameObject(), "Use CPU-intensive PC walls in the output. WARNING: May cause visual issues in VR!");
-        
-        this->transparentWallToggle = QuestUI::BeatSaberUI::CreateToggle(subcontainer->get_rectTransform(), IsEnglish() ? "Transparent Walls" : GetLocale("MODIFIER_NO_OBSTACLES"), enableInvisWalls, UnityEngine::Vector2(0, 0), OnChangeTransparentWalls);
+        if (!IsEnglish()) LocalizeComponent(pcWallToggle, "SETTINGS_SCREEN_DISTORTION_EFFECTS");
+
+        this->transparentWallToggle = QuestUI::BeatSaberUI::CreateToggle(subcontainer->get_rectTransform(), "Transparent Walls", enableInvisWalls, UnityEngine::Vector2(0, 0), OnChangeTransparentWalls);
         QuestUI::BeatSaberUI::AddHoverHint(transparentWallToggle->get_gameObject(), "Use transparent walls in the output.");
-        // this->ReloadUIValues();
+        if (!IsEnglish()) LocalizeComponent(transparentWallToggle, "MODIFIER_NO_OBSTACLES");
     }
 }
 

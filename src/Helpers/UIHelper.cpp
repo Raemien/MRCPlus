@@ -2,9 +2,15 @@
 #include "MRCConfig.hpp"
 #include "Helpers/ObjectHelper.hpp"
 #include "Helpers/UIHelper.hpp"
+
 #include "questui/shared/BeatSaberUI.hpp"
+
+#include "questui/shared/CustomTypes/Components/Settings/IncrementSetting.hpp"
+#include "UnityEngine/UI/Toggle.hpp"
+
 #include "beatsaber-hook/shared/utils/il2cpp-utils.hpp"
 #include "beatsaber-hook/shared/config/config-utils.hpp"
+
 #include "GlobalNamespace/NamedIntListController.hpp"
 #include "GlobalNamespace/OVRPlugin.hpp"
 #include "GlobalNamespace/BoolSO.hpp"
@@ -93,10 +99,30 @@ void SetWarningText(WarningText txtnum)
     warntext->SetText(il2cpp_utils::newcsstr(message));
 }
 
-// void LocalizeComponent()
-// {
+void LocalizeComponent(QuestUI::IncrementSetting* component, std::string key)
+{
+    TMPro::TextMeshProUGUI* labelObj = component->GetComponentInChildren<TMPro::TextMeshProUGUI*>();
+    LocalizeComponent(labelObj, key);
+}
 
-// }
+void LocalizeComponent(UnityEngine::UI::Toggle* component, std::string key)
+{
+    TMPro::TextMeshProUGUI* labelObj = component->get_transform()->get_parent()->Find(il2cpp_utils::newcsstr("NameText"))->GetComponent<TMPro::TextMeshProUGUI*>();
+    LocalizeComponent(labelObj, key);
+}
+
+void LocalizeComponent(TMPro::TextMeshProUGUI* labelObj, std::string key)
+{
+    UnityEngine::GameObject* gameObject = labelObj->get_gameObject();    
+    TMPro::TextMeshProUGUI* newTextObj = UnityEngine::Object::Instantiate(labelObj, gameObject->get_transform(), false);
+    UnityEngine::Object::Destroy(labelObj);
+
+    Il2CppString* localestr = Polyglot::Localization::Get(il2cpp_utils::newcsstr(key));
+
+    newTextObj->get_rectTransform()->set_sizeDelta(UnityEngine::Vector2(60.0f, 10.0f));
+    newTextObj->set_enableAutoSizing(false);
+    newTextObj->set_text(localestr);
+}
 
 TMPro::TextMeshProUGUI* CreateLocalizableText(std::string key, UnityEngine::Transform* parent, bool italics)
 {
@@ -106,6 +132,7 @@ TMPro::TextMeshProUGUI* CreateLocalizableText(std::string key, UnityEngine::Tran
     TMPro::TextMeshProUGUI* newTextObj = UnityEngine::Object::Instantiate(localizedTMPro, parent->get_transform(), false);
     UnityEngine::Object::Destroy(newTextObj->GetComponent<Polyglot::LocalizedTextMeshProUGUI*>());
     Il2CppString* localestr = Polyglot::Localization::Get(il2cpp_utils::newcsstr(key));
+
     newTextObj->get_rectTransform()->set_sizeDelta(UnityEngine::Vector2(60.0f, 10.0f));
     newTextObj->set_enableAutoSizing(false);
     newTextObj->set_fontStyle(italics ? TMPro::FontStyles::Italic : TMPro::FontStyles::Normal);

@@ -81,8 +81,7 @@ void MRCPlusMainView::DidActivate(bool firstActivation, bool addedToHierarchy, b
         configcontainer->GetComponent<UnityEngine::UI::ContentSizeFitter*>()->set_verticalFit(2);
         configcontainer->GetComponent<UnityEngine::UI::LayoutElement*>()->set_preferredWidth(110);
 
-        std::string modetext = GetLocale("MENU_CAMERA") + " Mode"; // Truly, a piece of linguistic genius.
-        HMUI::SimpleTextDropdown* mrcModeDropdown = QuestUI::BeatSaberUI::CreateDropdown(configcontainer->get_transform(), modetext, cameraMode, ModeValues,
+        HMUI::SimpleTextDropdown* mrcModeDropdown = QuestUI::BeatSaberUI::CreateDropdown(configcontainer->get_transform(), "Camera Mode", cameraMode, ModeValues,
         [](std::string newval) {OnChangeCameraMode(newval);});
 
         std::string infostr = "MRC is a tool designed to stream gameplay to another device. Originally intended for green-screen setups, MRCPlus repurposes this feature for streaming/recording normal footage.\n\nFor more information, visit this mod's GitHub wiki.";
@@ -112,6 +111,7 @@ void MRCPlusMainView::DidActivate(bool firstActivation, bool addedToHierarchy, b
 
         TMPro::TextMeshProUGUI* warningText = CreateLocalizableText("SETTINGS_OCULUS_MRC_WARNING", configcontainer->get_transform());
         warningText->set_enableWordWrapping(true);
+        warningText->set_alignment(TMPro::TextAlignmentOptions::Center);
         warningText->set_color(UnityEngine::Color(0.12549f, 0.75294f, 1.0f, 1.0f));
         warningText->set_fontSize(4);
     }
