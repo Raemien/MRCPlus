@@ -97,13 +97,14 @@ void MRCPlusGraphicsView::DidActivate(bool firstActivation, bool addedToHierarch
 
         UnityEngine::UI::Toggle* viewfinderToggle = QuestUI::BeatSaberUI::CreateToggle(subcontainer->get_rectTransform(), "Show Viewfinder", showViewfinder, UnityEngine::Vector2(0, 0), OnChangeShowViewfinder);
 
-        this->pcWallToggle = QuestUI::BeatSaberUI::CreateToggle(subcontainer->get_rectTransform(), "PC Walls", enablePCWalls, UnityEngine::Vector2(0, 0), OnChangePCWalls);
-        QuestUI::BeatSaberUI::AddHoverHint(pcWallToggle->get_gameObject(), "Use CPU-intensive PC walls in the output. WARNING: May cause visual issues in VR!");
-        if (!IsEnglish()) LocalizeComponent(pcWallToggle, "SETTINGS_SCREEN_DISTORTION_EFFECTS");
-
         this->transparentWallToggle = QuestUI::BeatSaberUI::CreateToggle(subcontainer->get_rectTransform(), "Transparent Walls", enableInvisWalls, UnityEngine::Vector2(0, 0), OnChangeTransparentWalls);
         QuestUI::BeatSaberUI::AddHoverHint(transparentWallToggle->get_gameObject(), "Use transparent walls in the output.");
         if (!IsEnglish()) LocalizeComponent(transparentWallToggle, "MODIFIER_NO_OBSTACLES");
+
+        this->pcWallToggle = QuestUI::BeatSaberUI::CreateToggle(subcontainer->get_rectTransform(), "PC Walls", enablePCWalls, UnityEngine::Vector2(0, 0), OnChangePCWalls);
+        QuestUI::BeatSaberUI::AddHoverHint(pcWallToggle->get_gameObject(), IsHardwareCapable() ? "Use CPU-intensive PC walls in the output. WARNING: May cause visual issues in VR!" : "Your headset does not support this setting.");
+        if (!IsEnglish()) LocalizeComponent(pcWallToggle, "SETTINGS_SCREEN_DISTORTION_EFFECTS");
+        this->pcWallToggle->set_interactable(IsHardwareCapable());
     }
 }
 

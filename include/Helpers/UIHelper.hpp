@@ -22,4 +22,6 @@ extern TMPro::TextMeshProUGUI* CreateLocalizableText(std::string key, UnityEngin
 
 extern bool IsEnglish();
 
+extern bool IsHardwareCapable();
+
 extern Array<UnityEngine::Vector2Int>* GetMRCResolutions();

@@ -80,13 +80,18 @@ bool IsEnglish()
     return (Polyglot::Localization::get_Instance()->selectedLanguage == Polyglot::Language::English);
 }
 
+bool IsHardwareCapable()
+{
+    auto* refreshrates = GlobalNamespace::OVRPlugin::get_systemDisplayFrequenciesAvailable();
+    return (refreshrates->values[refreshrates->Length() - 1] >= 90.0f);
+}
+
 Array<UnityEngine::Vector2Int>* GetMRCResolutions()
 {
     using namespace UnityEngine;
     std::vector<Vector2Int> _mrcResolutions = {Vector2Int(640, 360), Vector2Int(854, 480), Vector2Int(1280, 720), Vector2Int(1366, 768)};
 
-    auto* refreshrates = GlobalNamespace::OVRPlugin::get_systemDisplayFrequenciesAvailable();
-    if (refreshrates->values[refreshrates->Length() - 1] >= 90.0f)
+    if (IsHardwareCapable())
     {
         _mrcResolutions.push_back(Vector2Int(1600, 900));
         _mrcResolutions.push_back(Vector2Int(1920, 1080));
