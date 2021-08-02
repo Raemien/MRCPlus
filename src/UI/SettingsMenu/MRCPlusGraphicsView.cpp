@@ -8,6 +8,7 @@
 #include "questui/shared/CustomTypes/Components/Backgroundable.hpp"
 #include "questui/shared/CustomTypes/Components/Settings/IncrementSetting.hpp"
 
+#include "UnityEngine/Color.hpp"
 #include "UnityEngine/Object.hpp"
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/Transform.hpp"
@@ -40,6 +41,31 @@ void OnChangeShowViewfinder(bool newval)
     ApplyViewfinderVisibility(newval);
 }
 
+void SetWarningVisible(bool visible)
+{
+    TMPro::TextMeshProUGUI* warning = GraphicsView->warningText;
+    if (warning)
+    {
+        float alpha = visible ? 1.0 : 0.0f;
+        warning->set_color(warning->get_color() * UnityEngine::Color(1.0f, 1.0f, 1.0f, 0.0f));
+        warning->set_color(warning->get_color() + UnityEngine::Color(0.0f, 0.0f, 0.0f, alpha));
+    }
+}
+
+void OnChangeTransparentWalls(bool newval)
+{
+    auto& modcfg = getConfig().config;
+    modcfg["enableTransparentWalls"].SetBool(newval);
+
+    UnityEngine::UI::Toggle* pcToggle = GraphicsView->pcWallToggle;
+    if (newval && pcToggle)
+    {
+        SetWarningVisible(false);
+        modcfg["enablePCWalls"].SetBool(false);
+        pcToggle->set_isOn(false);
+    }
+}
+
 void OnChangePCWalls(bool newval)
 {
     auto& modcfg = getConfig().config;
@@ -51,19 +77,7 @@ void OnChangePCWalls(bool newval)
         modcfg["enableTransparentWalls"].SetBool(false);
         transparentToggle->set_isOn(false);
     }
-}
-
-void OnChangeTransparentWalls(bool newval)
-{
-    auto& modcfg = getConfig().config;
-    modcfg["enablePCWalls"].SetBool(newval);
-
-    UnityEngine::UI::Toggle* pcToggle = GraphicsView->pcWallToggle;
-    if (newval && pcToggle)
-    {
-        modcfg["enablePCWalls"].SetBool(false);
-        pcToggle->set_isOn(false);
-    }
+    SetWarningVisible(newval);
 }
 
 void MRCPlusGraphicsView::DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
@@ -102,9 +116,13 @@ void MRCPlusGraphicsView::DidActivate(bool firstActivation, bool addedToHierarch
         if (!IsEnglish()) LocalizeComponent(transparentWallToggle, "MODIFIER_NO_OBSTACLES");
 
         this->pcWallToggle = QuestUI::BeatSaberUI::CreateToggle(subcontainer->get_rectTransform(), "PC Walls", enablePCWalls, UnityEngine::Vector2(0, 0), OnChangePCWalls);
-        QuestUI::BeatSaberUI::AddHoverHint(pcWallToggle->get_gameObject(), IsHardwareCapable() ? "Use CPU-intensive PC walls in the output. WARNING: May cause visual issues in VR!" : "Your headset does not support this setting.");
+        QuestUI::BeatSaberUI::AddHoverHint(pcWallToggle->get_gameObject(), IsHardwareCapable() ? "Use CPU-intensive PC walls in the output." : "Your headset does not support this setting.");
         if (!IsEnglish()) LocalizeComponent(pcWallToggle, "SETTINGS_SCREEN_DISTORTION_EFFECTS");
         this->pcWallToggle->set_interactable(IsHardwareCapable());
+
+        this->warningText = QuestUI::BeatSaberUI::CreateText(subcontainer->get_rectTransform(), "WARNING: PC Walls may cause visual issues in VR!");
+        warningText->set_color(UnityEngine::Color(0.8471f, 0.0588f, 0.0588f, enablePCWalls ? 1.0f : 0.0f));
+
     }
 }
 
