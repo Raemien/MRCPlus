@@ -16,7 +16,7 @@
 
 using namespace GlobalNamespace;
 
-MAKE_HOOK_MATCH(WindowResSetting_InitVals, &GlobalNamespace::WindowResolutionSettingsController::GetInitValues, bool, GlobalNamespace::WindowResolutionSettingsController* instance, int& index, int& size)
+MAKE_HOOK_MATCH(WindowResSetting_InitVals, &GlobalNamespace::WindowResolutionSettingsController::GetInitValues, bool, GlobalNamespace::WindowResolutionSettingsController* instance, ByRef<int> index, ByRef<int> size)
 {
     // Don't initialize our values as we'll set them manually
     if (strcmp(to_utf8(csstrtostr(instance->get_transform()->get_parent()->get_name())).c_str(), "MRCResolutionContainer") == 0) return false;
