@@ -11,7 +11,7 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/extern/libil2cpp/il2cpp/libil2cpp",
-                "d:/QuestModDev/References/android-ndk-r21d/**"
+                "d:/QuestModDev/References/android-ndk-r22/**"
             ],
             "cStandard": "c11",
             "cppStandard": "c++20",
