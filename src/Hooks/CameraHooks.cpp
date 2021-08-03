@@ -42,6 +42,35 @@ void HotSwitchCamera()
     canSwitch = false;
 }
 
+void SetCullingMasks(UnityEngine::Camera* hmdCam, UnityEngine::Camera* mrcCam)
+{
+    if (!hmdCam || !mrcCam) return;
+    auto& modcfg = getConfig().config;
+    long hmdMask = hmdCam->get_cullingMask();
+    long mrcMask = mrcCam->get_cullingMask();    
+    mrcMask = hmdMask;
+
+    // Please don't ask.
+    // I don't know what part of my brain decided it would be
+    // a good idea to repeat this bit-wise operation four times.
+    // I went over a week without noticing. Well done me.
+
+    mrcMask = mrcMask & ~(1 << 27);
+
+    if (modcfg["usePCWalls"].GetBool())
+    {
+        mrcMask = mrcMask | (1 << 26);
+        mrcMask = mrcMask & ~(1 << 27);
+        mrcMask = mrcMask & ~(1 << 27);
+    }
+    if (modcfg["useTransparentWalls"].GetBool())
+    {
+        mrcMask = mrcMask & ~(1 << 27);
+    }
+    hmdCam->set_cullingMask(hmdMask);
+    mrcCam->set_cullingMask(mrcMask);
+}
+
 MAKE_HOOK_MATCH(OVRCameraRig_Start, &GlobalNamespace::OVRCameraRig::Start, void, GlobalNamespace::OVRCameraRig* self)
 {
     OVRCameraRig_Start(self);
@@ -81,18 +110,17 @@ MAKE_HOOK_MATCH(OVRExternalComposition_Update, &GlobalNamespace::OVRExternalComp
 
     bool mrcPlusActive = MRCPlusEnabled();
     int aafactor = modcfg["antiAliasing"].GetInt();
-    aafactor = std::clamp((aafactor & (aafactor - 1) ? aafactor : 0), 0, 8);
+    // aafactor = std::clamp((aafactor & (aafactor - 1) ? aafactor : 0), 0, 8);
+    aafactor = 0; // remove later!
 
     bgCamera->set_allowMSAA(true);
     camTexture = bgCamera->get_targetTexture();
     camTexture->set_antiAliasing(aafactor);
 
-    // Set custom camera properties
+    // Extended camera properties
     if (!mrcPlusActive) return;
-    bool doFpCull = (std::string)modcfg["cameraMode"].GetString() == "First Person";
-    originalCullMask = (originalCullMask == 0) ? bgCamera->get_cullingMask() : originalCullMask;
-    bgCamera->set_cullingMask(doFpCull && mainCamera ? mainCamera->get_cullingMask(): originalCullMask);
-
+    SetCullingMasks(mainCamera, bgCamera);
+    
     // Override camera placement
     UnityEngine::Transform* refTransform = rotationRef->get_transform();
     bgCamera->get_transform()->SetPositionAndRotation(refTransform->get_position(), refTransform->get_rotation());
@@ -137,7 +165,6 @@ MAKE_HOOK_MATCH(OVRManager_LateUpdate, &GlobalNamespace::OVRManager::LateUpdate,
         refTransform->SetPositionAndRotation(lerpPos, lerpRot);
     }
 }
-
 
 void MRCPlus::Hooks::Install_CameraHooks()
 {
