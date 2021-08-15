@@ -1,13 +1,5 @@
 # MRCPlus
-Transforms Oculus's MRC system into a spectator camera with customized FOV and smoothing.
-
-This is intended as a quest adaptation of Camera2/CameraPlus.
-## Important:
-**Getting MRC to work is tricky; please [follow this guide](https://github.com/Raemien/MRCPlus/wiki/Getting-Started)!**
-
-This mod requires a PC running OBS to receive footage. For situations where this is not practical, you might consider using Henwill8's Replay mod.
-
-Mixed Reality Capture offers a nice alternative to casting, at the cost of being a hassle to set up. As such, I've prepared [a few guides](https://github.com/Raemien/MRCPlus/wiki/) to help with the initial setup and troubleshooting.
+This mod is currently unreleased. Please check back later once everything is ready for public use.
 
 ## Credits
 
