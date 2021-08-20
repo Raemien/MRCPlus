@@ -1,4 +1,5 @@
 #include "UI/SettingsMenu/MRCPlusFlowCoordinator.hpp"
+#include "Types/MoveableCamera.hpp"
 #include "Helpers/ObjectHelper.hpp"
 #include "Helpers/HookInstaller.hpp"
 #include "EmbeddedContent.hpp"
@@ -82,7 +83,8 @@ void CreateReferenceObject()
         cubeObj->set_name(il2cpp_utils::newcsstr("Visualizer"));
         cubeObj->get_transform()->set_parent(rotationRef->get_transform());
         cubeObj->get_transform()->set_localScale(UnityEngine::Vector3::get_one() * 0.25);
-        UnityEngine::Component::Destroy(cubeObj->GetComponent<UnityEngine::Collider*>());
+        cubeObj->AddComponent<MRCPlus::MoveableCamera*>();
+        // UnityEngine::Component::Destroy(cubeObj->GetComponent<UnityEngine::Collider*>());
 
         // Viewfinder
         cubeObj->GetComponent<UnityEngine::Renderer*>()->get_material()->SetTexture(il2cpp_utils::newcsstr("_MainTex"), (UnityEngine::Texture*)camTexture);
