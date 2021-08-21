@@ -38,7 +38,6 @@ void OnChangeShowViewfinder(bool newval)
 {
     getConfig().config["showViewfinder"].SetBool(newval);
     getConfig().Write();
-    ApplyViewfinderVisibility(newval);
 }
 
 void SetWarningVisible(bool visible)

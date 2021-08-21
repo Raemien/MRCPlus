@@ -84,15 +84,9 @@ void CreateReferenceObject()
         cubeObj->get_transform()->set_parent(rotationRef->get_transform());
         cubeObj->get_transform()->set_localScale(UnityEngine::Vector3::get_one() * 0.25);
         cubeObj->AddComponent<MRCPlus::MoveableCamera*>();
-        // UnityEngine::Component::Destroy(cubeObj->GetComponent<UnityEngine::Collider*>());
 
         // Viewfinder
-        cubeObj->GetComponent<UnityEngine::Renderer*>()->get_material()->SetTexture(il2cpp_utils::newcsstr("_MainTex"), (UnityEngine::Texture*)camTexture);
-
-        // Apply visibility
-        bool isVisible = getConfig().config["showViewfinder"].GetBool();
-        ApplyViewfinderVisibility(isVisible);
-
+        // cubeObj->GetComponent<UnityEngine::Renderer*>()->get_material()->SetTexture(il2cpp_utils::newcsstr("_MainTex"), (UnityEngine::Texture*)camTexture);
     }
 }
 

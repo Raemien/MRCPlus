@@ -21,6 +21,7 @@ DEFINE_TYPE(MRCPlus, MoveableCamera);
 
 namespace MRCPlus
 {
+    float grabDist = 0.0f;
     bool isHolding = false;
     UnityEngine::Vector3 raycastPos;
     UnityEngine::Quaternion raycastRot;
@@ -29,6 +30,8 @@ namespace MRCPlus
     void MoveableCamera::Awake()
     {
         auto& modcfg = getConfig().config;
+        this->renderer = this->GetComponent<UnityEngine::MeshRenderer*>();
+        this->collider = this->GetComponent<UnityEngine::Collider*>();
         raycastPos = UnityEngine::Vector3(modcfg["posX"].GetFloat(), modcfg["posY"].GetFloat(), modcfg["posZ"].GetFloat());
         raycastRot = UnityEngine::Quaternion::Euler(modcfg["angX"].GetFloat(), modcfg["angY"].GetFloat(), modcfg["angZ"].GetFloat());
         pointerArray = UnityEngine::Resources::FindObjectsOfTypeAll<VRUIControls::VRPointer*>();
@@ -39,6 +42,11 @@ namespace MRCPlus
         if (!pointerArray->values[0] || !pointerArray->values[0]->m_CachedPtr) pointerArray = UnityEngine::Resources::FindObjectsOfTypeAll<VRUIControls::VRPointer*>();
         if (pointerArray->Length() < 1) return;
         auto& modcfg = getConfig().config;
+
+        bool visible = modcfg["showViewfinder"].GetBool() && strcmp(modcfg["cameraMode"].GetString(), "First Person") == 0;
+        this->collider->set_enabled(!visible);
+        this->renderer->set_enabled(!visible);
+        if (visible) return;
 
         GlobalNamespace::VRController* vrcontroller = pointerArray->values[0]->get_vrController();
         if (vrcontroller && vrcontroller->get_triggerValue() > 0.9f)
@@ -55,9 +63,11 @@ namespace MRCPlus
                 raycastRot = UnityEngine::Quaternion::Inverse(vrcontroller->get_transform()->get_rotation()) * this->get_transform()->get_rotation();
 
                 UnityEngine::Vector3 grabPos = vrcontroller->get_transform()->get_position();
+                grabPos = grabPos + (vrcontroller->get_forward() * grabDist);
                 modcfg["posX"].SetFloat(grabPos.x);
                 modcfg["posY"].SetFloat(grabPos.y);
                 modcfg["posZ"].SetFloat(grabPos.z);
+                grabDist += vrcontroller->get_verticalAxisValue() * UnityEngine::Time::get_deltaTime() * -0.8f;
 
                 UnityEngine::Quaternion grabAngs = vrcontroller->get_transform()->get_rotation();
                 UnityEngine::Vector3 eulerangs = grabAngs.get_eulerAngles();
