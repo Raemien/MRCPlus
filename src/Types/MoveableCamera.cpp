@@ -43,13 +43,13 @@ namespace MRCPlus
         if (pointerArray->Length() < 1) return;
         auto& modcfg = getConfig().config;
 
-        bool visible = modcfg["showViewfinder"].GetBool() && strcmp(modcfg["cameraMode"].GetString(), "First Person") == 0;
-        this->collider->set_enabled(!visible);
-        this->renderer->set_enabled(!visible);
-        if (visible) return;
-
         GlobalNamespace::VRController* vrcontroller = pointerArray->values[0]->get_vrController();
-        if (vrcontroller && vrcontroller->get_triggerValue() > 0.9f)
+        bool visible = modcfg["showViewfinder"].GetBool() && strcmp(modcfg["cameraMode"].GetString(), "First Person") != 0;
+        this->collider->set_enabled(visible);
+        this->renderer->set_enabled(visible);
+        if (!vrcontroller || !visible) return;
+
+        if (vrcontroller->get_triggerValue() > 0.9f)
         {
             UnityEngine::RaycastHit hitInfoRef;
             if (UnityEngine::Physics::Raycast(vrcontroller->get_position(), vrcontroller->get_forward(), hitInfoRef, 32.0f))
