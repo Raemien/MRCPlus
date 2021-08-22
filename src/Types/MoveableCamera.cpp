@@ -25,7 +25,6 @@ namespace MRCPlus
     bool isHolding = false;
     UnityEngine::Vector3 raycastPos;
     UnityEngine::Quaternion raycastRot;
-    Array<VRUIControls::VRPointer*>* pointerArray;
 
     void MoveableCamera::Awake()
     {
@@ -34,7 +33,7 @@ namespace MRCPlus
         this->collider = this->GetComponent<UnityEngine::Collider*>();
         raycastPos = UnityEngine::Vector3(modcfg["posX"].GetFloat(), modcfg["posY"].GetFloat(), modcfg["posZ"].GetFloat());
         raycastRot = UnityEngine::Quaternion::Euler(modcfg["angX"].GetFloat(), modcfg["angY"].GetFloat(), modcfg["angZ"].GetFloat());
-        pointerArray = UnityEngine::Resources::FindObjectsOfTypeAll<VRUIControls::VRPointer*>();
+        this->pointerArray = UnityEngine::Resources::FindObjectsOfTypeAll<VRUIControls::VRPointer*>();
     }
 
     void MoveableCamera::Update()
@@ -43,13 +42,13 @@ namespace MRCPlus
         if (pointerArray->Length() < 1) return;
         auto& modcfg = getConfig().config;
 
-        GlobalNamespace::VRController* vrcontroller = pointerArray->values[0]->get_vrController();
         bool visible = modcfg["showViewfinder"].GetBool() && strcmp(modcfg["cameraMode"].GetString(), "First Person") != 0;
         this->collider->set_enabled(visible);
         this->renderer->set_enabled(visible);
-        if (!vrcontroller || !visible) return;
+        if (pointerArray->values[0] == nullptr || !visible) return;
 
-        if (vrcontroller->get_triggerValue() > 0.9f)
+        GlobalNamespace::VRController* vrcontroller = pointerArray->values[0]->get_vrController();
+        if (vrcontroller->get_triggerValue() > 0.75f)
         {
             UnityEngine::RaycastHit hitInfoRef;
             if (UnityEngine::Physics::Raycast(vrcontroller->get_position(), vrcontroller->get_forward(), hitInfoRef, 32.0f))
@@ -79,29 +78,4 @@ namespace MRCPlus
         }
         else isHolding = false;
     }
-
-    // void MoveableCamera::FixedUpdate()
-    // {
-    //     if (!pointerArray || pointerArray->Length() < 1) return;
-    //     GlobalNamespace::VRController* vrcontroller = pointerArray->values[0]->get_vrController();
-    //     auto& modcfg = getConfig().config;
-
-
-    //     if (!isHolding) return;
-
-    //     UnityEngine::Vector3 grabPos = vrcontroller->get_transform()->TransformPoint(raycastPos);
-    //     UnityEngine::Vector3 lerpPos = UnityEngine::Vector3::Lerp(this->get_transform()->get_position(), grabPos, UnityEngine::Time::get_deltaTime() * modcfg["positionSmoothing"].GetFloat());
-    //     modcfg["posX"].SetFloat(grabPos.x);
-    //     modcfg["posY"].SetFloat(grabPos.y);
-    //     modcfg["posZ"].SetFloat(grabPos.z);
-    //     // this->get_transform()->set_position(grabPos);
-
-    //     UnityEngine::Quaternion grabAngs = vrcontroller->get_transform()->get_rotation() * raycastRot;
-    //     UnityEngine::Quaternion slerpRot = UnityEngine::Quaternion::Slerp(this->get_transform()->get_rotation(), grabAngs, UnityEngine::Time::get_deltaTime() * modcfg["rotationSmoothing"].GetFloat());
-    //     UnityEngine::Vector3 eulerangs = grabAngs.get_eulerAngles();
-    //     modcfg["angX"].SetFloat(eulerangs.x);
-    //     modcfg["angY"].SetFloat(eulerangs.y);
-    //     modcfg["angZ"].SetFloat(eulerangs.z);
-        // this->get_transform()->set_rotation(grabAngs);
-    // }
 }
