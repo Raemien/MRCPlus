@@ -42,7 +42,9 @@ void OnChangeCameraMode(std::string newval)
     bool disabled = (newval == "Disabled");
 
     GlobalNamespace::BoolSO* boolsetting = GetMRCBoolSO();
+    bool stateChanged = boolsetting->get_value() == disabled;
     boolsetting->set_value(!disabled);
+    boolsetting->value = !disabled;
 
     bool camViewVisible = true;
     if (mixedReality || disabled)
@@ -53,6 +55,7 @@ void OnChangeCameraMode(std::string newval)
     else SetAsymmetricFOV(width, height);
     
     ApplyPanelVisibility(camViewVisible, !disabled);
+    if (stateChanged) SoftRestart();
 }
 
 void MRCPlusMainView::DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)

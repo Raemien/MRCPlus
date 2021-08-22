@@ -12,6 +12,7 @@
 #include "beatsaber-hook/shared/config/config-utils.hpp"
 
 #include "GlobalNamespace/NamedIntListController.hpp"
+#include "GlobalNamespace/MenuTransitionsHelper.hpp"
 #include "GlobalNamespace/OVRPlugin.hpp"
 #include "GlobalNamespace/BoolSO.hpp"
 #include "UnityEngine/Object.hpp"
@@ -73,6 +74,13 @@ TMPro::TextMeshProUGUI* CreateLocalizableText(std::string key, UnityEngine::Tran
     newTextObj->set_text(localestr);
 
     return newTextObj;
+}
+
+void SoftRestart()
+{
+    GlobalNamespace::MenuTransitionsHelper* menuHelper = (GlobalNamespace::MenuTransitionsHelper*)UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::MenuTransitionsHelper*>()->values[0];
+    if (!menuHelper) return;
+    menuHelper->RestartGame(nullptr);
 }
 
 bool IsEnglish()
