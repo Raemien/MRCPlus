@@ -50,24 +50,11 @@ void SetCullingMasks(UnityEngine::Camera* hmdCam, UnityEngine::Camera* mrcCam)
     long mrcMask = mrcCam->get_cullingMask();    
     mrcMask = hmdMask;
 
-    // Please don't ask.
-    // I don't know what part of my brain decided it would be
-    // a good idea to repeat this bit-wise operation four times.
-    // I went over a week without noticing. Well done me.
-
-    mrcMask = mrcMask & ~(1 << 27);
-
-    if (modcfg["usePCWalls"].GetBool())
+    mrcMask = mrcMask |= 1 << 27;
+    if (modcfg["enableTransparentWalls"].GetBool())
     {
-        mrcMask = mrcMask | (1 << 26);
-        mrcMask = mrcMask & ~(1 << 27);
-        mrcMask = mrcMask & ~(1 << 27);
+        mrcMask = mrcMask &= ~(1 << 27);
     }
-    if (modcfg["useTransparentWalls"].GetBool())
-    {
-        mrcMask = mrcMask & ~(1 << 27);
-    }
-    hmdCam->set_cullingMask(hmdMask);
     mrcCam->set_cullingMask(mrcMask);
 }
 
@@ -110,10 +97,8 @@ MAKE_HOOK_MATCH(OVRExternalComposition_Update, &GlobalNamespace::OVRExternalComp
 
     bool mrcPlusActive = MRCPlusEnabled();
     int aafactor = modcfg["antiAliasing"].GetInt();
-    // aafactor = std::clamp((aafactor & (aafactor - 1) ? aafactor : 0), 0, 8);
-    aafactor = 0; // remove later!
+    aafactor = std::clamp((aafactor & (aafactor - 1) ? aafactor : 0), 0, 8);
 
-    bgCamera->set_allowMSAA(true);
     camTexture = bgCamera->get_targetTexture();
     camTexture->set_antiAliasing(aafactor);
 
