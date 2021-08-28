@@ -14,8 +14,8 @@ struct Config_t
     bool enableTransparentWalls = false;
     int width = 1280;
     int height = 720;
-    int fov = 90;
-    int antiAliasing = 0;
+    int fov = 100;
+    int antiAliasing = 1;
     float positionSmoothness = 4;
     float rotationSmoothness = 4;
     float posX = 0.77f;
