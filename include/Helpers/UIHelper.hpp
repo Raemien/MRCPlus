@@ -20,8 +20,6 @@ extern void LocalizeComponent(TMPro::TextMeshProUGUI* textObj, std::string key);
 
 extern TMPro::TextMeshProUGUI* CreateLocalizableText(std::string key, UnityEngine::Transform* parent, bool italics = true);
 
-extern void SoftRestart();
-
 extern bool IsEnglish();
 
 extern bool IsHardwareCapable();

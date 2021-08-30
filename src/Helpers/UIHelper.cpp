@@ -12,7 +12,8 @@
 #include "beatsaber-hook/shared/config/config-utils.hpp"
 
 #include "GlobalNamespace/NamedIntListController.hpp"
-#include "GlobalNamespace/MenuTransitionsHelper.hpp"
+#include "GlobalNamespace/OVRPlugin_SystemHeadset.hpp"
+#include "GlobalNamespace/OVRPlugin_OVRP_1_55_1.hpp"
 #include "GlobalNamespace/OVRPlugin.hpp"
 #include "GlobalNamespace/BoolSO.hpp"
 #include "UnityEngine/Object.hpp"
@@ -30,6 +31,7 @@
 #include "Polyglot/Localization.hpp"
 #include "Polyglot/LocalizedTextMeshProUGUI.hpp"
 #include "Polyglot/Language.hpp"
+#include "System/Version.hpp"
 
 std::vector<std::string> ModeValues {"Disabled", "Mixed Reality", "First Person", "Third Person"};
 UnityEngine::Transform* SettingsContainer = nullptr;
@@ -76,13 +78,6 @@ TMPro::TextMeshProUGUI* CreateLocalizableText(std::string key, UnityEngine::Tran
     return newTextObj;
 }
 
-void SoftRestart()
-{
-    GlobalNamespace::MenuTransitionsHelper* menuHelper = (GlobalNamespace::MenuTransitionsHelper*)UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::MenuTransitionsHelper*>()->values[0];
-    if (!menuHelper) return;
-    menuHelper->RestartGame(nullptr);
-}
-
 bool IsEnglish()
 {
     return (Polyglot::Localization::get_Instance()->selectedLanguage == Polyglot::Language::English);
@@ -90,7 +85,12 @@ bool IsEnglish()
 
 bool IsHardwareCapable()
 {
-    auto* refreshrates = GlobalNamespace::OVRPlugin::get_systemDisplayFrequenciesAvailable();
+    using namespace GlobalNamespace;
+    if (OVRPlugin::get_version() >= OVRPlugin::OVRP_1_55_1::_get_version())
+    {
+        return OVRPlugin::GetSystemHeadsetType() == OVRPlugin::SystemHeadset::Oculus_Quest_2;
+    }
+    auto* refreshrates = OVRPlugin::get_systemDisplayFrequenciesAvailable();
     return (refreshrates->values[refreshrates->Length() - 1] >= 90.0f);
 }
 
