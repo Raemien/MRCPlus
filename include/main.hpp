@@ -6,7 +6,7 @@
 #include "beatsaber-hook/shared/utils/il2cpp-functions.hpp"
 
 #include "UnityEngine/GameObject.hpp"
-#include "UnityEngine/RenderTexture.hpp"
+#include "UnityEngine/Material.hpp"
 
 #include "GlobalNamespace/OVRPlugin_CameraIntrinsics.hpp"
 #include "GlobalNamespace/OVRPlugin.hpp"
@@ -21,6 +21,6 @@ extern void CreateReferenceObject();
 
 extern UnityEngine::GameObject* rotationRef;
 
-extern UnityEngine::RenderTexture* camTexture;
+extern UnityEngine::Material* viewfinderMat;
 
 extern GlobalNamespace::OVRPlugin::CameraIntrinsics mrcInfo;

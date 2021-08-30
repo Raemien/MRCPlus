@@ -1,4 +1,5 @@
 #include "Types/MoveableCamera.hpp"
+#include "Helpers/ObjectHelper.hpp"
 #include "main.hpp"
 
 #include "beatsaber-hook/shared/utils/utils.h"
@@ -16,7 +17,6 @@
 #include "UnityEngine/Resources.hpp"
 #include "UnityEngine/Time.hpp"
 
-using namespace MRCPlus;
 DEFINE_TYPE(MRCPlus, MoveableCamera);
 
 namespace MRCPlus
@@ -29,7 +29,7 @@ namespace MRCPlus
     void MoveableCamera::Awake()
     {
         auto& modcfg = getConfig().config;
-        this->renderer = this->GetComponent<UnityEngine::MeshRenderer*>();
+        this->cubeRenderer = this->GetComponent<UnityEngine::MeshRenderer*>();
         this->collider = this->GetComponent<UnityEngine::Collider*>();
         raycastPos = UnityEngine::Vector3(modcfg["posX"].GetFloat(), modcfg["posY"].GetFloat(), modcfg["posZ"].GetFloat());
         raycastRot = UnityEngine::Quaternion::Euler(modcfg["angX"].GetFloat(), modcfg["angY"].GetFloat(), modcfg["angZ"].GetFloat());
@@ -43,8 +43,9 @@ namespace MRCPlus
         auto& modcfg = getConfig().config;
 
         bool visible = modcfg["showViewfinder"].GetBool() && strcmp(modcfg["cameraMode"].GetString(), "First Person") != 0;
+        if (previewRenderer) this->previewRenderer->set_enabled(visible);
+        this->cubeRenderer->set_enabled(visible);
         this->collider->set_enabled(visible);
-        this->renderer->set_enabled(visible);
         if (pointerArray->values[0] == nullptr || !visible) return;
 
         GlobalNamespace::VRController* vrcontroller = pointerArray->values[0]->get_vrController();

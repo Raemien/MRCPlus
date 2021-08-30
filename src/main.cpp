@@ -22,6 +22,8 @@
 
 #include "UnityEngine/PrimitiveType.hpp"
 #include "UnityEngine/RenderTexture.hpp"
+#include "UnityEngine/MeshRenderer.hpp"
+#include "UnityEngine/Quaternion.hpp"
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/Transform.hpp"
 #include "UnityEngine/Component.hpp"
@@ -31,6 +33,7 @@
 #include "UnityEngine/Vector3.hpp"
 #include "UnityEngine/Texture.hpp"
 #include "UnityEngine/Camera.hpp"
+#include "UnityEngine/Shader.hpp"
 
 using namespace GlobalNamespace;
 using namespace MRCPlus;
@@ -39,9 +42,9 @@ static ModInfo modInfo;
 
 OVRPlugin::CameraIntrinsics mrcInfo = OVRPlugin::CameraIntrinsics(false, 0.0, OVRPlugin::Fovf(0, 0, 0, 0));
 
-// Move these to separate MRCViewfinder class later
 UnityEngine::GameObject* rotationRef;
-UnityEngine::RenderTexture* camTexture;
+UnityEngine::Material* viewfinderMat;
+UnityEngine::Renderer* previewRenderer;
 
 Logger& getLogger() {
     static Logger* logger = new Logger(modInfo, LoggerOptions(false, true));
@@ -69,7 +72,6 @@ void SetAsymmetricFOV(float width, float height) // Using an asymmetric fov syst
     OVRPlugin::OverrideExternalCameraFov(0, true, OVRPlugin::Fovf(vfov, vfov, hfov, hfov));
 }
 
-// Move this to MRCViewfinder's ctor later
 void CreateReferenceObject()
 {
     if (!rotationRef)
@@ -80,13 +82,23 @@ void CreateReferenceObject()
 
         // Placement visualizer
         UnityEngine::GameObject* cubeObj = UnityEngine::GameObject::CreatePrimitive((int)3);
-        cubeObj->set_name(il2cpp_utils::newcsstr("Visualizer"));
+        cubeObj->set_name(il2cpp_utils::newcsstr("MoveableCube"));
         cubeObj->get_transform()->set_parent(rotationRef->get_transform());
-        cubeObj->get_transform()->set_localScale(UnityEngine::Vector3::get_one() * 0.25);
-        cubeObj->AddComponent<MRCPlus::MoveableCamera*>();
+        cubeObj->get_transform()->set_localScale(UnityEngine::Vector3::get_one() * 0.15);
+        MRCPlus::MoveableCamera* mrcComponent =cubeObj->AddComponent<MRCPlus::MoveableCamera*>();
+        cubeObj->set_layer(6);
 
         // Viewfinder
-        // cubeObj->GetComponent<UnityEngine::Renderer*>()->get_material()->SetTexture(il2cpp_utils::newcsstr("_MainTex"), (UnityEngine::Texture*)camTexture);
+        UnityEngine::GameObject* previewObj = UnityEngine::GameObject::CreatePrimitive((int)4);
+        previewObj->get_transform()->set_parent(rotationRef->get_transform());
+        previewObj->get_transform()->set_localScale(UnityEngine::Vector3::get_one() * 0.02);
+        previewObj->get_transform()->set_localPosition(UnityEngine::Vector3(0.2f, 0.0f, 0.0f));
+        previewObj->get_transform()->set_localRotation(UnityEngine::Quaternion::Euler(90.0f, 0.0f, 0.0f));
+        previewObj->set_name(il2cpp_utils::newcsstr("MRCPreview"));
+        UnityEngine::Component::Destroy(previewObj->GetComponent<UnityEngine::Collider*>());
+        mrcComponent->previewRenderer = previewObj->GetComponent<UnityEngine::MeshRenderer*>();
+        viewfinderMat = mrcComponent->previewRenderer->get_material();
+        viewfinderMat->set_shader(UnityEngine::Shader::Find(il2cpp_utils::newcsstr("Custom/LIV_Blit")));
     }
 }
 
