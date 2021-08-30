@@ -9,7 +9,7 @@ struct Config_t
 {
     std::string cameraMode = "Disabled";
     bool useCameraHotkey = false;
-    bool showViewfinder = false;
+    bool showViewfinder = true;
     bool enablePCWalls = false;
     bool enableTransparentWalls = false;
     int width = 1280;
