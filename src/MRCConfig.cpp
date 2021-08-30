@@ -78,7 +78,7 @@ bool LoadConfig()
 bool MRCPlusEnabled()
 {
     auto& modcfg = getConfig().config;
-    bool enabled = (std::string)modcfg["cameraMode"].GetString() != "Disabled";
-    bool moddedcam = (std::string)modcfg["cameraMode"].GetString() != "Mixed Reality";
+    bool enabled = strcmp(modcfg["cameraMode"].GetString(), "Disabled") != 0;
+    bool moddedcam = strcmp(modcfg["cameraMode"].GetString(), "Mixed Reality") != 0;
     return (enabled && moddedcam);
 }

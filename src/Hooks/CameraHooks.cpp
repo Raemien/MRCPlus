@@ -158,13 +158,13 @@ MAKE_HOOK_MATCH(OVRManager_LateUpdate, &GlobalNamespace::OVRManager::LateUpdate,
         bool button_anyclick = OVRInput::Get(OVRInput::Button::PrimaryIndexTrigger, OVRInput::Controller::All);
         if (button_x && canSwitch) HotSwitchCamera();
 
-        if ((std::string)modcfg["cameraMode"].GetString() == "First Person")
+        if (strcmp(modcfg["cameraMode"].GetString(), "First Person") == 0)
         {
             auto* targetTransform = maincam->get_transform();
             targetRot = targetTransform->get_rotation();
             targetPos = targetTransform->get_position();
         }
-        if ((std::string)modcfg["cameraMode"].GetString() == "Third Person")
+        if (strcmp(modcfg["cameraMode"].GetString(), "Third Person") == 0)
         {
             targetRot = UnityEngine::Quaternion::Euler(modcfg["angX"].GetFloat(), modcfg["angY"].GetFloat(), modcfg["angZ"].GetFloat());
             targetPos = UnityEngine::Vector3(modcfg["posX"].GetFloat(), modcfg["posY"].GetFloat(), modcfg["posZ"].GetFloat());
