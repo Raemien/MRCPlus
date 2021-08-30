@@ -1,4 +1,6 @@
+#include "Types/PreloadedFrames.hpp"
 #include "main.hpp"
+
 #include "UnityEngine/Renderer.hpp"
 #include "UnityEngine/Resources.hpp"
 #include "UnityEngine/Component.hpp"
@@ -8,6 +10,8 @@
 #include "beatsaber-hook/shared/utils/il2cpp-utils.hpp"
 
 #include <regex>
+
+MRCPlus::PreloadedFrames* preloadedFrames;
 
 GlobalNamespace::BoolSO* GetMRCBoolSO()
 {
