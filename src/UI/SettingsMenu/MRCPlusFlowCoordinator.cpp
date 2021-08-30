@@ -21,7 +21,7 @@ void MRCPlusFlowCoordinator::DidActivate(bool firstActivation, bool addedToHiera
     MRCPlusSettingsFC = (HMUI::FlowCoordinator*)this;
     if (firstActivation) 
     {
-        this->SetTitle(il2cpp_utils::createcsstr("MRCPlus"), (int)1);
+        this->SetTitle(il2cpp_utils::newcsstr("MRCPlus"), (int)1);
         this->showBackButton = true;
 
         if (!this->mrcMainView) this->mrcMainView = QuestUI::BeatSaberUI::CreateViewController<MRCPlusMainView*>();

@@ -22,7 +22,7 @@ void ModifyMRCMenu()
     warningtext->SetActive(false);
 
     auto* titlecontainer = QuestUI::BeatSaberUI::CreateHorizontalLayoutGroup(SettingsContainer->get_transform());
-    titlecontainer->get_gameObject()->AddComponent<QuestUI::Backgroundable*>()->ApplyBackground(il2cpp_utils::createcsstr("panel-top"));
+    titlecontainer->get_gameObject()->AddComponent<QuestUI::Backgroundable*>()->ApplyBackground(il2cpp_utils::newcsstr("panel-top"));
     titlecontainer->set_padding(UnityEngine::RectOffset::New_ctor(10, 10, 0, 0));
     titlecontainer->GetComponent<UnityEngine::UI::ContentSizeFitter*>()->set_horizontalFit(2);
 
