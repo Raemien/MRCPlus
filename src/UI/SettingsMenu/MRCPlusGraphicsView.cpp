@@ -115,12 +115,17 @@ void MRCPlusGraphicsView::DidActivate(bool firstActivation, bool addedToHierarch
         if (!IsEnglish()) LocalizeComponent(transparentWallToggle, "MODIFIER_NO_OBSTACLES");
 
         this->pcWallToggle = QuestUI::BeatSaberUI::CreateToggle(subcontainer->get_rectTransform(), "PC Walls", enablePCWalls, UnityEngine::Vector2(0, 0), OnChangePCWalls);
-        QuestUI::BeatSaberUI::AddHoverHint(pcWallToggle->get_gameObject(), IsHardwareCapable() ? "Use CPU-intensive PC walls in the output." : "Your headset does not support this setting.");
+        QuestUI::BeatSaberUI::AddHoverHint(pcWallToggle->get_gameObject(), IsHardwareCapable() ? "Use GPU-intensive PC walls in the output." : "Your headset does not support this setting.");
         if (!IsEnglish()) LocalizeComponent(pcWallToggle, "SETTINGS_SCREEN_DISTORTION_EFFECTS");
-        this->pcWallToggle->set_interactable(IsHardwareCapable());
+        this->pcWallToggle->set_interactable(IsHardwareCapable() || enablePCWalls);
 
-        this->warningText = QuestUI::BeatSaberUI::CreateText(subcontainer->get_rectTransform(), "WARNING: PC Walls may cause visual issues in VR!");
-        warningText->set_color(UnityEngine::Color(0.8471f, 0.0588f, 0.0588f, enablePCWalls ? 1.0f : 0.0f));
+        this->warningText = QuestUI::BeatSaberUI::CreateText(subcontainer->get_rectTransform(), "NOTE: This setting may impact battery usage.");
+        warningText->set_color(UnityEngine::Color(0.12549f, 0.75294f, 1.0f, enablePCWalls ? 1.0f : 0.0f));
+        if (!IsHardwareCapable())
+        {
+            warningText->SetText(il2cpp_utils::newcsstr("WARNING: This causes visual issues on Quest 1!"));
+            warningText->set_color(UnityEngine::Color(0.8471f, 0.0588f, 0.0588f, enablePCWalls ? 1.0f : 0.0f));
+        }
 
     }
 }
