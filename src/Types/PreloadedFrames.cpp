@@ -29,7 +29,7 @@ namespace MRCPlus
     UnityEngine::Texture2D* PreloadedFrames::LoadFromBase64(Il2CppString* input)
     {
         Array<uint8_t>* bytes = System::Convert::FromBase64String(input);
-        UnityEngine::Texture2D* output = UnityEngine::Texture2D::New_ctor(360, 480, UnityEngine::TextureFormat::Alpha8, false, false);
+        UnityEngine::Texture2D* output = UnityEngine::Texture2D::New_ctor(480, 360, UnityEngine::TextureFormat::RGBA32, false, false);
         UnityEngine::ImageConversion::LoadImage(output, bytes, false);
         return output;
     }
