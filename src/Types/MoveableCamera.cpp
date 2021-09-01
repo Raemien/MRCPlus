@@ -60,7 +60,7 @@ namespace MRCPlus
             if (isHolding)
             {
                 raycastPos = vrcontroller->get_transform()->InverseTransformPoint(this->get_transform()->get_position());
-                raycastRot = UnityEngine::Quaternion::Inverse(vrcontroller->get_transform()->get_rotation()) * this->get_transform()->get_rotation();
+                raycastRot = UnityEngine::Quaternion::Inverse(vrcontroller->get_transform()->get_rotation());
 
                 UnityEngine::Vector3 grabPos = vrcontroller->get_transform()->get_position();
                 grabPos = grabPos + (vrcontroller->get_forward() * grabDist);
@@ -68,12 +68,13 @@ namespace MRCPlus
                 modcfg["posY"].SetFloat(grabPos.y);
                 modcfg["posZ"].SetFloat(grabPos.z);
                 grabDist += vrcontroller->get_verticalAxisValue() * UnityEngine::Time::get_deltaTime() * -0.8f;
+                grabDist = std::max(grabDist, 0.0f);
 
                 UnityEngine::Quaternion grabAngs = vrcontroller->get_transform()->get_rotation();
                 UnityEngine::Vector3 eulerangs = grabAngs.get_eulerAngles();
                 modcfg["angX"].SetFloat(eulerangs.x - 180.0f);
                 modcfg["angY"].SetFloat(eulerangs.y);
-                modcfg["angZ"].SetFloat(eulerangs.z - 180.0f);
+                modcfg["angZ"].SetFloat(180.0f);
                 getConfig().Write();
             }
         }
