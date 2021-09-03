@@ -8,7 +8,7 @@
 
 extern UnityEngine::Transform* SettingsContainer;
 
-extern std::vector<std::string> ModeValues;
+extern std::vector<std::u16string> ModeValues;
 
 extern std::string GetModeText(int mode);
 

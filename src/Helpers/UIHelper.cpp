@@ -33,7 +33,7 @@
 #include "Polyglot/Language.hpp"
 #include "System/Version.hpp"
 
-std::vector<std::string> ModeValues {"Disabled", "Mixed Reality", "First Person", "Third Person"};
+std::vector<std::u16string> ModeValues {u"Disabled", u"Mixed Reality", u"First Person", u"Third Person"};
 UnityEngine::Transform* SettingsContainer = nullptr;
 
 void LocalizeComponent(QuestUI::IncrementSetting* component, std::string key)

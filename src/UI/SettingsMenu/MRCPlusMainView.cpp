@@ -32,14 +32,15 @@ DEFINE_TYPE(MRCPlus, MRCPlusMainView);
 
 MRCPlusMainView* MainView;
 
-void OnChangeCameraMode(std::string newval)
+void OnChangeCameraMode(std::u16string_view newval_u16)
 {
-    getConfig().config["cameraMode"].SetString(newval, getConfig().config.GetAllocator());
+    std::string newval_u8 = to_utf8(newval_u16);
+    getConfig().config["cameraMode"].SetString(newval_u8, getConfig().config.GetAllocator());
     getConfig().Write();
     float width = (float)getConfig().config["width"].GetInt();
     float height = (float)getConfig().config["height"].GetInt();
-    bool mixedReality = (newval == "Mixed Reality");
-    bool disabled = (newval == "Disabled");
+    bool mixedReality = strcmp(newval_u8.c_str(), "Mixed Reality") == 0;
+    bool disabled = strcmp(newval_u8.c_str(), "Disabled") == 0;
 
     bool camViewVisible = true;
     if (mixedReality || disabled)
@@ -58,7 +59,7 @@ void MRCPlusMainView::DidActivate(bool firstActivation, bool addedToHierarchy, b
     if (firstActivation && addedToHierarchy) 
     {
         auto& modcfg = getConfig().config;
-        std::string cameraMode = modcfg["cameraMode"].GetString();
+        std::string_view cameraMode = std::string_view{modcfg["cameraMode"].GetString()};
         int height = modcfg["height"].GetInt();
         int width = modcfg["width"].GetInt();
 
@@ -74,8 +75,8 @@ void MRCPlusMainView::DidActivate(bool firstActivation, bool addedToHierarchy, b
         configcontainer->GetComponent<UnityEngine::UI::ContentSizeFitter*>()->set_verticalFit(2);
         configcontainer->GetComponent<UnityEngine::UI::LayoutElement*>()->set_preferredWidth(110);
 
-        HMUI::SimpleTextDropdown* mrcModeDropdown = QuestUI::BeatSaberUI::CreateDropdown(configcontainer->get_transform(), "Camera Mode", cameraMode, ModeValues,
-        [](std::string newval) {OnChangeCameraMode(newval);});
+        HMUI::SimpleTextDropdown* mrcModeDropdown = QuestUI::BeatSaberUI::CreateDropdown(configcontainer->get_transform(), u"Camera Mode", to_utf16(cameraMode), ModeValues,
+        [](std::u16string_view newval) {OnChangeCameraMode(newval);});
 
         std::string infostr = "MRC is a tool designed to stream gameplay to another device. Originally intended for green-screen setups, MRCPlus repurposes this feature for streaming/recording normal footage.\n\nFor more information, visit this mod's GitHub wiki.";
         TMPro::TextMeshProUGUI* infoText = QuestUI::BeatSaberUI::CreateText(configcontainer->get_transform(), infostr);
