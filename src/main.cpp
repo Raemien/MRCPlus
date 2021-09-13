@@ -105,7 +105,7 @@ void CreateReferenceObject()
 extern "C" void setup(ModInfo& info) {
 
     info.id = "MRCPlus";
-    info.version = "1.0.0";
+    info.version = "1.0.1";
     modInfo = info;
     getConfig().Load();
 }
