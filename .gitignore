@@ -44,6 +44,9 @@ out/
 ndkpath.txt
 *.zip
 
+# Embedded assets (todo: batch later!)
+include/EmbeddedContent/
+
 # Dependencies & other files
 extern/
 DebrisTweaks.zip

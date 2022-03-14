@@ -11,10 +11,13 @@
 
 
 DECLARE_CLASS_CODEGEN(MRCPlus, MSAAPostEffect, UnityEngine::MonoBehaviour,
+    DECLARE_INSTANCE_FIELD(UnityEngine::Shader*, fxaaShader);
+    DECLARE_INSTANCE_FIELD(UnityEngine::Material*, fxaaMat);
     DECLARE_INSTANCE_FIELD(UnityEngine::Camera*, mrcCamera);
     DECLARE_INSTANCE_FIELD(int, width);
     DECLARE_INSTANCE_FIELD(int, height);
     DECLARE_INSTANCE_FIELD(int, msaaLevel);
+    DECLARE_INSTANCE_FIELD(bool, useFXAA);
 
     DECLARE_INSTANCE_METHOD(void, Awake);
     DECLARE_INSTANCE_METHOD(void, Update);

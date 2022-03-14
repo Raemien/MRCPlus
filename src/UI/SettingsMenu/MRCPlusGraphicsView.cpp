@@ -105,7 +105,8 @@ void OnChangeMSAA(int index)
             oldtext->set_maxVisibleCharacters(0);
         }
         bool showlocale = newval == 1;
-        GraphicsView->msaaText->set_text(il2cpp_utils::newcsstr(std::to_string(newval) + "x MSAA"));
+        bool isfxaa = newval == -1;
+        GraphicsView->msaaText->set_text(il2cpp_utils::newcsstr(isfxaa ? "FXAA*" : std::to_string(newval) + "x MSAA"));
         GraphicsView->msaaOffText->set_maxVisibleCharacters(showlocale ? 12 : 0);
         GraphicsView->msaaText->set_maxVisibleCharacters(showlocale ? 0 : 12);
     }
