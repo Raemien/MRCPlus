@@ -10,6 +10,8 @@
 
 #include "UnityEngine/Color.hpp"
 #include "UnityEngine/Object.hpp"
+#include "UnityEngine/Vector2.hpp"
+#include "UnityEngine/Vector3.hpp"
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/Transform.hpp"
 #include "UnityEngine/RectTransform.hpp"
@@ -22,7 +24,11 @@
 #include "UnityEngine/UI/VerticalLayoutGroup.hpp"
 #include "UnityEngine/UI/HorizontalLayoutGroup.hpp"
 #include "UnityEngine/Events/UnityAction.hpp"
+#include "TMPro/TextAlignmentOptions.hpp"
 #include "TMPro/TextMeshProUGUI.hpp"
+
+#include "modloader/shared/modloader.hpp"
+#include <vector>
 
 using namespace MRCPlus;
 DEFINE_TYPE(MRCPlus, MRCPlusGraphicsView);
@@ -79,6 +85,34 @@ void OnChangePCWalls(bool newval)
     SetWarningVisible(newval);
 }
 
+void OnChangeMSAA(int index)
+{
+    auto& modcfg = getConfig().config;
+
+    std::vector<int> msaavals = {1, -1, 2, 4};
+    int newval = msaavals[index];
+
+    QuestUI::IncrementSetting* increment = GraphicsView->msaaIncrement;
+    if (increment)
+    {
+        if (!GraphicsView->msaaText)
+        {
+            TMPro::TextMeshProUGUI* oldtext = increment->Text;
+            GraphicsView->msaaText = UnityEngine::Object::Instantiate(oldtext, oldtext->get_transform()->get_parent());
+            GraphicsView->msaaOffText = CreateLocalizableText("SETTINGS_OFF", oldtext->get_transform());
+            GraphicsView->msaaOffText->set_alignment(TMPro::TextAlignmentOptions::Capline);
+            GraphicsView->msaaOffText->get_rectTransform()->set_pivot(UnityEngine::Vector2(0.5f, 0.5f));
+            oldtext->set_maxVisibleCharacters(0);
+        }
+        bool showlocale = newval == 1;
+        GraphicsView->msaaText->set_text(il2cpp_utils::newcsstr(std::to_string(newval) + "x MSAA"));
+        GraphicsView->msaaOffText->set_maxVisibleCharacters(showlocale ? 12 : 0);
+        GraphicsView->msaaText->set_maxVisibleCharacters(showlocale ? 0 : 12);
+    }
+    modcfg["antiAliasing"].SetInt(newval);
+
+}
+
 void MRCPlusGraphicsView::DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
 {
     GraphicsView = this;
@@ -88,6 +122,7 @@ void MRCPlusGraphicsView::DidActivate(bool firstActivation, bool addedToHierarch
         bool enablePCWalls = modcfg["enablePCWalls"].GetBool();
         bool enableInvisWalls = modcfg["enableTransparentWalls"].GetBool();
         bool showViewfinder = modcfg["showViewfinder"].GetBool();
+        int antiAliasing = modcfg["antiAliasing"].GetInt();
 
         this->gfxContainer = QuestUI::BeatSaberUI::CreateVerticalLayoutGroup(get_rectTransform());
         gfxContainer->set_spacing(0.2f);
@@ -114,18 +149,44 @@ void MRCPlusGraphicsView::DidActivate(bool firstActivation, bool addedToHierarch
         QuestUI::BeatSaberUI::AddHoverHint(transparentWallToggle->get_gameObject(), "Use transparent walls in the output.");
         if (!IsEnglish()) LocalizeComponent(transparentWallToggle, "MODIFIER_NO_OBSTACLES");
 
-        this->pcWallToggle = QuestUI::BeatSaberUI::CreateToggle(subcontainer->get_rectTransform(), "PC Walls", enablePCWalls, UnityEngine::Vector2(0, 0), OnChangePCWalls);
-        QuestUI::BeatSaberUI::AddHoverHint(pcWallToggle->get_gameObject(), IsHardwareCapable() ? "Use GPU-intensive PC walls in the output." : "Your headset does not support this setting.");
-        if (!IsEnglish()) LocalizeComponent(pcWallToggle, "SETTINGS_SCREEN_DISTORTION_EFFECTS");
-        this->pcWallToggle->set_interactable(IsHardwareCapable() || enablePCWalls);
+        bool hasDistortions = Modloader::getMods().contains("Distortions");
+        // if (!hasDistortions)
+        // {
+        //     this->pcWallToggle = QuestUI::BeatSaberUI::CreateToggle(subcontainer->get_rectTransform(), "PC Walls", enablePCWalls, UnityEngine::Vector2(0, 0), OnChangePCWalls);
+        //     QuestUI::BeatSaberUI::AddHoverHint(pcWallToggle->get_gameObject(), IsHardwareCapable() ? "Requires the Distortions mod." : "Your headset does not support this setting.");
+        //     if (!IsEnglish()) LocalizeComponent(pcWallToggle, "SETTINGS_SCREEN_DISTORTION_EFFECTS");
+        //     this->pcWallToggle->set_interactable(enablePCWalls);
+        // }
 
-        this->warningText = QuestUI::BeatSaberUI::CreateText(subcontainer->get_rectTransform(), "NOTE: This setting may impact battery usage.");
-        warningText->set_color(UnityEngine::Color(0.12549f, 0.75294f, 1.0f, enablePCWalls ? 1.0f : 0.0f));
-        if (!IsHardwareCapable())
-        {
-            warningText->SetText(il2cpp_utils::newcsstr("WARNING: This causes visual issues on Quest 1!"));
-            warningText->set_color(UnityEngine::Color(0.8471f, 0.0588f, 0.0588f, enablePCWalls ? 1.0f : 0.0f));
+        int msaa_initval = (int)std::ceil(pow((float)antiAliasing - 1, 0.5f));
+        if (antiAliasing < 1) msaa_initval = 1;
+        if (antiAliasing > 1) msaa_initval += 1;
+        
+
+        msaaIncrement = QuestUI::BeatSaberUI::CreateIncrementSetting(subcontainer->get_rectTransform(), "", 0, 1, msaa_initval, 0, 3, OnChangeMSAA);
+        msaaIncrement->GetComponent<UnityEngine::UI::LayoutElement*>()->set_preferredHeight(6.2f);
+        QuestUI::BeatSaberUI::AddHoverHint(msaaIncrement->get_gameObject(), "Smoothens rough edges.\nHigher values cost more performance.");
+        LocalizeComponent(msaaIncrement, "SETTINGS_ANTIALIASING_MSAA");
+        auto* aanewstr = msaaIncrement->GetComponentsInChildren<TMPro::TextMeshProUGUI*>()->values[1]->get_text()->Replace(il2cpp_utils::newcsstr(u"(MSAA)"), il2cpp_utils::newcsstr(u""));
+        msaaIncrement->GetComponentsInChildren<TMPro::TextMeshProUGUI*>()->values[1]->SetText(aanewstr);
+        OnChangeMSAA(msaa_initval);
+
+
+        if (!IsEnglish()) {
+            this->warningText = CreateLocalizableText("PROMO_BANNER_RECOMMENDED_LABEL", subcontainer->get_rectTransform());
+            this->warningText->SetText(this->warningText->get_text()->Insert(0, il2cpp_utils::newcsstr("* ")));
+            this->warningText->set_alignment(TMPro::TextAlignmentOptions::Left);
         }
+        else this->warningText = QuestUI::BeatSaberUI::CreateText(subcontainer->get_rectTransform(), "* Recommended for your system");
+        warningText->set_color(UnityEngine::Color(0.12549f, 0.75294f, 1.0f, enablePCWalls ? 1.0f : 1.0f));
+
+        // this->warningText = QuestUI::BeatSaberUI::CreateText(subcontainer->get_rectTransform(), "NOTE: This setting may impact battery usage.");
+        // warningText->set_color(UnityEngine::Color(0.12549f, 0.75294f, 1.0f, enablePCWalls ? 1.0f : 0.0f));
+        // if (!IsHardwareCapable())
+        // {
+        //     warningText->SetText(il2cpp_utils::newcsstr("WARNING: This causes visual issues on Quest 1!"));
+        //     warningText->set_color(UnityEngine::Color(0.8471f, 0.0588f, 0.0588f, enablePCWalls ? 1.0f : 0.0f));
+        // }
 
     }
 }
