@@ -21,7 +21,8 @@ namespace MRCPlus
         this->width = modcfg["width"].GetInt();
         this->height = modcfg["height"].GetInt();
         int aafactor = modcfg["antiAliasing"].GetInt();
-        this->msaaLevel = std::clamp((aafactor & (aafactor - 1) ? 1 : aafactor), 1, 4);
+        this->useFXAA = (aafactor == -1);
+        this->msaaLevel = useFXAA ? 1 : std::clamp((aafactor & (aafactor - 1) ? 1 : aafactor), 1, 4);
 	}
 
     void MSAAPostEffect::Update()
@@ -30,7 +31,8 @@ namespace MRCPlus
         this->width = modcfg["width"].GetInt();
         this->height = modcfg["height"].GetInt(); 
         int aafactor = modcfg["antiAliasing"].GetInt();
-        this->msaaLevel = std::clamp((aafactor & (aafactor - 1) ? 1 : aafactor), 1, 4);
+        this->useFXAA = (aafactor == -1);
+        this->msaaLevel = useFXAA ? 1 : std::clamp((aafactor & (aafactor - 1) ? 1 : aafactor), 1, 4);
 	}
 
     void MSAAPostEffect::OnPreRender()
@@ -52,5 +54,18 @@ namespace MRCPlus
             mrcCamera->get_targetTexture()->set_descriptor(texdesc);
             mrcCamera->get_targetTexture()->Create();
         }
+    }
+
+    void MSAAPostEffect::OnRenderImage(UnityEngine::RenderTexture* src, UnityEngine::RenderTexture* dest)
+    {
+        if (!useFXAA) {
+            UnityEngine::Graphics::Blit(src, dest);
+            return;
+        }
+        if (!fxaaMat) {
+            fxaaShader = LoadFXAAEffect();
+            fxaaMat = UnityEngine::Material::New_ctor(fxaaShader);
+        }
+        UnityEngine::Graphics::Blit(src, dest, fxaaMat);
     }
 }
