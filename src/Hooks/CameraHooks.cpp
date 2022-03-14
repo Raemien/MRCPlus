@@ -1,6 +1,7 @@
 #include "Helpers/HookInstaller.hpp"
 #include "Helpers/ObjectHelper.hpp"
 #include "Types/PreloadedFrames.hpp"
+#include "Types/MSAAPostEffect.hpp"
 #include "MRCConfig.hpp"
 #include "main.hpp"
 
@@ -27,6 +28,7 @@
 #include "GlobalNamespace/OVRPlugin.hpp"
 #include "GlobalNamespace/OVRPlugin_Media.hpp"
 #include "GlobalNamespace/OVRPlugin_Result.hpp"
+#include "GlobalNamespace/OVRPlugin_OVRP_1_49_0.hpp"
 #include "GlobalNamespace/OVRPlugin_OVRP_1_15_0.hpp"
 #include "GlobalNamespace/OVRManager.hpp"
 #include "GlobalNamespace/OVRManager_TrackingOrigin.hpp"
@@ -135,10 +137,21 @@ MAKE_HOOK_MATCH(OVRExternalComposition_Update, &GlobalNamespace::OVRExternalComp
     // Extended camera properties
     if (!mrcPlusActive) return;
     SetCullingMasks(mainCamera, bgCamera);
+    fgCamera->set_enabled(false);
+
+    if (bgCamera && !bgCamera->GetComponent<MRCPlus::MSAAPostEffect*>())
+    {
+        auto* fxaaEffect = bgCamera->get_gameObject()->AddComponent<MRCPlus::MSAAPostEffect*>();
+        fxaaEffect->mrcCamera = bgCamera;
+    }
     
     // Override camera placement
+    // ::Array<float>* array_noaudio = {};
     UnityEngine::Transform* refTransform = rotationRef->get_transform();
     bgCamera->get_transform()->SetPositionAndRotation(refTransform->get_position(), refTransform->get_rotation());
+    // bgCamera->Render();
+    // int syncID = 0;
+    // bool result = CRASH_UNLESS(il2cpp_utils::RunMethodUnsafe<bool>("", "OVRPlugin/Media", "EncodeMrcFrame", bgCamera->get_targetTexture()->GetNativeTexturePtr(), fgCamera->get_targetTexture()->GetNativeTexturePtr(), array_noaudio, 0, 0, (double)0, (double)0, byref(syncID)));
 }
 
 MAKE_HOOK_MATCH(OVRManager_LateUpdate, &GlobalNamespace::OVRManager::LateUpdate, void, GlobalNamespace::OVRManager* self)
