@@ -44,7 +44,7 @@ namespace MRCPlus
         int currentaa = mrcCamera->get_targetTexture()->get_antiAliasing();
         if (currentaa != msaaLevel || texdesc.width != width)
         {
-           
+            getLogger().info("MRC msaa change");
             texdesc.msaaSamples = msaaLevel;
             texdesc.set_msaaSamples(msaaLevel);
             texdesc.width = width;

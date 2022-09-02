@@ -10,13 +10,8 @@
   },
   "dependencies": [
     {
-      "id": "modloader",
-      "versionRange": "*",
-      "additionalData": {}
-    },
-    {
       "id": "beatsaber-hook",
-      "versionRange": "^2.0.0",
+      "versionRange": "^3.8.1",
       "additionalData": {
         "extraFiles": [
           "src/inline-hook"
@@ -24,19 +19,35 @@
       }
     },
     {
-      "id": "questui",
-      "versionRange": "^0.11.1",
-      "additionalData": {}
+      "id": "custom-types",
+      "versionRange": "^0.15.9",
+      "additionalData": {
+        "includeQmod": false,
+        "private": true
+      }
     },
     {
       "id": "codegen",
-      "versionRange": "^0.14.0",
-      "additionalData": {}
+      "versionRange": "^0.22.0",
+      "additionalData": {
+        "includeQmod": false,
+        "private": true
+      }
     },
     {
-      "id": "custom-types",
-      "versionRange": "^0.12.7",
-      "additionalData": {}
+      "id": "modloader",
+      "versionRange": "^1.2.3",
+      "additionalData": {
+        "private": true
+      }
+    },
+    {
+      "id": "questui",
+      "versionRange": "^0.13.5",
+      "additionalData": {
+        "includeQmod": false,
+        "private": true
+      }
     }
   ],
   "additionalData": {}

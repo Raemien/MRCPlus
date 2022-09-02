@@ -14,6 +14,7 @@
 
 #include "TMPro/TextMeshProUGUI.hpp"
 
+// No longer needed in 1.19.1/1.20!
 void ModifyMRCMenu()
 {
     UnityEngine::GameObject* infotext = SettingsContainer->Find(il2cpp_utils::newcsstr("InfoText"))->get_gameObject();

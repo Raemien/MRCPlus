@@ -6,7 +6,7 @@
 #include "VRUIControls/VRPointer.hpp"
 
 DECLARE_CLASS_CODEGEN(MRCPlus, MoveableCamera, UnityEngine::MonoBehaviour,
-    DECLARE_INSTANCE_FIELD(Array<VRUIControls::VRPointer*>*, pointerArray);
+    DECLARE_INSTANCE_FIELD(ArrayW<VRUIControls::VRPointer*>, pointerArray);
     DECLARE_INSTANCE_FIELD(UnityEngine::MeshRenderer*, cubeRenderer);
     DECLARE_INSTANCE_FIELD(UnityEngine::MeshRenderer*, previewRenderer);
     DECLARE_INSTANCE_FIELD(UnityEngine::Collider*, collider);

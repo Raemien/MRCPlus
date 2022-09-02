@@ -26,9 +26,9 @@ namespace MRCPlus
         if (PreviewTitle) UnityEngine::Component::Destroy(this->PreviewTitle);
     }
 
-    UnityEngine::Texture2D* PreloadedFrames::LoadFromBase64(Il2CppString* input)
+    UnityEngine::Texture2D* PreloadedFrames::LoadFromBase64(StringW input)
     {
-        Array<uint8_t>* bytes = System::Convert::FromBase64String(input);
+        ArrayW<uint8_t> bytes = System::Convert::FromBase64String(input);
         UnityEngine::Texture2D* output = UnityEngine::Texture2D::New_ctor(480, 360, UnityEngine::TextureFormat::RGBA32, false, false);
         UnityEngine::ImageConversion::LoadImage(output, bytes, false);
         return output;

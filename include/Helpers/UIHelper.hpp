@@ -8,7 +8,7 @@
 
 extern UnityEngine::Transform* SettingsContainer;
 
-extern std::vector<std::u16string> ModeValues;
+extern std::vector<StringW> GetModeValues();
 
 extern std::string GetModeText(int mode);
 
@@ -24,4 +24,4 @@ extern bool IsEnglish();
 
 extern bool IsHardwareCapable();
 
-extern Array<UnityEngine::Vector2Int>* GetMRCResolutions();
+extern ArrayW<UnityEngine::Vector2Int> GetMRCResolutions();

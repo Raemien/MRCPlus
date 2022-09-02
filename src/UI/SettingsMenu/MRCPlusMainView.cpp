@@ -1,3 +1,4 @@
+#define USE_CODEGEN_FIELDS
 #include "UI/SharedUIManager.hpp"
 #include "UI/SettingsMenu/MRCPlusMainView.hpp"
 #include "Helpers/ObjectHelper.hpp"
@@ -32,9 +33,9 @@ DEFINE_TYPE(MRCPlus, MRCPlusMainView);
 
 MRCPlusMainView* MainView;
 
-void OnChangeCameraMode(std::u16string_view newval_u16)
+void OnChangeCameraMode(StringW newval_u16)
 {
-    std::string newval_u8 = to_utf8(newval_u16);
+    std::string newval_u8 = std::string(newval_u16);
     getConfig().config["cameraMode"].SetString(newval_u8, getConfig().config.GetAllocator());
     getConfig().Write();
     float width = (float)getConfig().config["width"].GetInt();
@@ -75,8 +76,8 @@ void MRCPlusMainView::DidActivate(bool firstActivation, bool addedToHierarchy, b
         configcontainer->GetComponent<UnityEngine::UI::ContentSizeFitter*>()->set_verticalFit(2);
         configcontainer->GetComponent<UnityEngine::UI::LayoutElement*>()->set_preferredWidth(110);
 
-        HMUI::SimpleTextDropdown* mrcModeDropdown = QuestUI::BeatSaberUI::CreateDropdown(configcontainer->get_transform(), u"Camera Mode", to_utf16(cameraMode), ModeValues,
-        [](std::u16string_view newval) {OnChangeCameraMode(newval);});
+        HMUI::SimpleTextDropdown* mrcModeDropdown = QuestUI::BeatSaberUI::CreateDropdown(configcontainer->get_transform(), "Camera Mode", StringW(cameraMode), GetModeValues(),
+        [](StringW newval) {OnChangeCameraMode(newval);});
 
         std::string infostr = "MRC is a tool designed to stream gameplay to another device. Originally intended for green-screen setups, MRCPlus repurposes this feature for streaming/recording normal footage.\n\nFor more information, visit this mod's GitHub wiki.";
         TMPro::TextMeshProUGUI* infoText = QuestUI::BeatSaberUI::CreateText(configcontainer->get_transform(), infostr);
@@ -85,23 +86,23 @@ void MRCPlusMainView::DidActivate(bool firstActivation, bool addedToHierarchy, b
         infoText->set_fontSize(4);
 
         UnityEngine::UI::VerticalLayoutGroup* rescontainer = QuestUI::BeatSaberUI::CreateVerticalLayoutGroup(configcontainer->get_rectTransform());
-        rescontainer->set_name(il2cpp_utils::newcsstr("MRCResolutionContainer"));
+        rescontainer->set_name(StringW("MRCResolutionContainer"));
         rescontainer->set_childAlignment(UnityEngine::TextAnchor::UpperCenter);
         rescontainer->GetComponent<UnityEngine::UI::LayoutElement*>()->set_preferredWidth(110);
         
-        auto* resreference = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::WindowResolutionSettingsController*>()->values[0];
+        auto* resreference = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::WindowResolutionSettingsController*>()[0];
         auto* resolutionsetting = UnityEngine::Object::Instantiate(resreference, rescontainer->get_transform(), false);
         resolutionsetting->windowResolutions = GetMRCResolutions();
-        resolutionsetting->numberOfElements = resolutionsetting->windowResolutions->Length();
+        resolutionsetting->numberOfElements = resolutionsetting->windowResolutions.Length();
         for (size_t i = 0; i < resolutionsetting->numberOfElements; i++)
         {
-            auto* resolutions = resolutionsetting->windowResolutions;
-            if (resolutions->values[i].GetHashCode() == UnityEngine::Vector2Int(width, height).GetHashCode()) {
+            auto resolutions = resolutionsetting->windowResolutions;
+            if (resolutions[i].GetHashCode() == UnityEngine::Vector2Int(width, height).GetHashCode()) {
                 resolutionsetting->idx = i;
                 resolutionsetting->ApplyValue(i);
             }
         }
-        resolutionsetting->set_text(il2cpp_utils::newcsstr(std::to_string(width) + " x " + std::to_string(height)));
+        resolutionsetting->set_text(StringW(std::to_string(width) + " x " + std::to_string(height)));
 
         TMPro::TextMeshProUGUI* warningText = CreateLocalizableText("SETTINGS_OCULUS_MRC_WARNING", configcontainer->get_transform());
         warningText->set_enableWordWrapping(true);

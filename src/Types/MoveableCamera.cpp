@@ -38,17 +38,17 @@ namespace MRCPlus
 
     void MoveableCamera::Update()
     {
-        if (!pointerArray->values[0] || !pointerArray->values[0]->m_CachedPtr) pointerArray = UnityEngine::Resources::FindObjectsOfTypeAll<VRUIControls::VRPointer*>();
-        if (pointerArray->Length() < 1) return;
+        if (!pointerArray[0] || !pointerArray[0]->dyn_m_CachedPtr()) pointerArray = UnityEngine::Resources::FindObjectsOfTypeAll<VRUIControls::VRPointer*>();
+        if (pointerArray.Length() < 1) return;
         auto& modcfg = getConfig().config;
 
         bool visible = modcfg["showViewfinder"].GetBool() && strcmp(modcfg["cameraMode"].GetString(), "First Person") != 0;
         if (previewRenderer) this->previewRenderer->set_enabled(visible);
         this->cubeRenderer->set_enabled(visible);
         this->collider->set_enabled(visible);
-        if (pointerArray->values[0] == nullptr || !visible) return;
+        if (pointerArray[0] == nullptr || !visible) return;
 
-        GlobalNamespace::VRController* vrcontroller = pointerArray->values[0]->get_vrController();
+        GlobalNamespace::VRController* vrcontroller = pointerArray[0]->get_vrController();
         if (vrcontroller->get_triggerValue() > 0.75f)
         {
             UnityEngine::RaycastHit hitInfoRef;

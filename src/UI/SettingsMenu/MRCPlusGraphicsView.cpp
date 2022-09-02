@@ -106,7 +106,7 @@ void OnChangeMSAA(int index)
         }
         bool showlocale = newval == 1;
         bool isfxaa = newval == -1;
-        GraphicsView->msaaText->set_text(il2cpp_utils::newcsstr(isfxaa ? "FXAA*" : std::to_string(newval) + "x MSAA"));
+        GraphicsView->msaaText->set_text(StringW(isfxaa ? "FXAA*" : std::to_string(newval) + "x MSAA"));
         GraphicsView->msaaOffText->set_maxVisibleCharacters(showlocale ? 12 : 0);
         GraphicsView->msaaText->set_maxVisibleCharacters(showlocale ? 0 : 12);
     }
@@ -132,7 +132,7 @@ void MRCPlusGraphicsView::DidActivate(bool firstActivation, bool addedToHierarch
 
         // Title
         auto* titlecontainer = QuestUI::BeatSaberUI::CreateHorizontalLayoutGroup(gfxContainer->get_rectTransform());
-        titlecontainer->get_gameObject()->AddComponent<QuestUI::Backgroundable*>()->ApplyBackground(il2cpp_utils::newcsstr("panel-top"));
+        titlecontainer->get_gameObject()->AddComponent<QuestUI::Backgroundable*>()->ApplyBackground(StringW("panel-top"));
         titlecontainer->set_padding(UnityEngine::RectOffset::New_ctor(10, 10, 0, 0));
         titlecontainer->GetComponent<UnityEngine::UI::ContentSizeFitter*>()->set_horizontalFit(2);
 
@@ -168,14 +168,14 @@ void MRCPlusGraphicsView::DidActivate(bool firstActivation, bool addedToHierarch
         msaaIncrement->GetComponent<UnityEngine::UI::LayoutElement*>()->set_preferredHeight(6.2f);
         QuestUI::BeatSaberUI::AddHoverHint(msaaIncrement->get_gameObject(), "Smoothens rough edges.\nHigher values cost more performance.");
         LocalizeComponent(msaaIncrement, "SETTINGS_ANTIALIASING_MSAA");
-        auto* aanewstr = msaaIncrement->GetComponentsInChildren<TMPro::TextMeshProUGUI*>()->values[1]->get_text()->Replace(il2cpp_utils::newcsstr(u"(MSAA)"), il2cpp_utils::newcsstr(u""));
-        msaaIncrement->GetComponentsInChildren<TMPro::TextMeshProUGUI*>()->values[1]->SetText(aanewstr);
+        auto aanewstr = msaaIncrement->GetComponentsInChildren<TMPro::TextMeshProUGUI*>()[1]->get_text()->Replace(StringW(u"(MSAA)"), StringW(u""));
+        msaaIncrement->GetComponentsInChildren<TMPro::TextMeshProUGUI*>()[1]->SetText(aanewstr);
         OnChangeMSAA(msaa_initval);
 
 
         if (!IsEnglish()) {
             this->warningText = CreateLocalizableText("PROMO_BANNER_RECOMMENDED_LABEL", subcontainer->get_rectTransform());
-            this->warningText->SetText(this->warningText->get_text()->Insert(0, il2cpp_utils::newcsstr("* ")));
+            this->warningText->SetText(this->warningText->get_text()->Insert(0, StringW("* ")));
             this->warningText->set_alignment(TMPro::TextAlignmentOptions::Left);
         }
         else this->warningText = QuestUI::BeatSaberUI::CreateText(subcontainer->get_rectTransform(), "* Recommended for your system");
@@ -185,7 +185,7 @@ void MRCPlusGraphicsView::DidActivate(bool firstActivation, bool addedToHierarch
         // warningText->set_color(UnityEngine::Color(0.12549f, 0.75294f, 1.0f, enablePCWalls ? 1.0f : 0.0f));
         // if (!IsHardwareCapable())
         // {
-        //     warningText->SetText(il2cpp_utils::newcsstr("WARNING: This causes visual issues on Quest 1!"));
+        //     warningText->SetText(StringW("WARNING: This causes visual issues on Quest 1!"));
         //     warningText->set_color(UnityEngine::Color(0.8471f, 0.0588f, 0.0588f, enablePCWalls ? 1.0f : 0.0f));
         // }
 

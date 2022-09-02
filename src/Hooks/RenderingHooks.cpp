@@ -1,3 +1,4 @@
+#define USE_CODEGEN_FIELDS
 #include "Helpers/HookInstaller.hpp"
 #include "Helpers/ObjectHelper.hpp"
 #include "Helpers/UIHelper.hpp"
@@ -41,7 +42,7 @@ MAKE_HOOK_MATCH(ConditionalMaterialSwitcher_Awake, &GlobalNamespace::Conditional
             UnityEngine::GameObject* stereoFix = UnityEngine::GameObject::CreatePrimitive(UnityEngine::PrimitiveType::Cube);
             stereoFix->set_name(il2cpp_utils::newcsstr("Quest1GrabPassFix"));
             stereoFix->get_transform()->set_localScale(UnityEngine::Vector3(0.001f, 0.001f, 0.001f));
-            stereoFix->get_transform()->GetComponent<UnityEngine::MeshRenderer*>()->SetMaterial(instance->material1);
+            stereoFix->get_transform()->GetComponent<UnityEngine::MeshRenderer*>()->SetMaterial(instance->dyn__material1());
             UnityEngine::Object::DontDestroyOnLoad(stereoFix);
             postGrabPassFix = true;
         }

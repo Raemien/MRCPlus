@@ -33,8 +33,13 @@
 #include "Polyglot/Language.hpp"
 #include "System/Version.hpp"
 
-std::vector<std::u16string> ModeValues {u"Disabled", u"Mixed Reality", u"First Person", u"Third Person"};
 UnityEngine::Transform* SettingsContainer = nullptr;
+
+std::vector<StringW> GetModeValues()
+{
+    std::vector<StringW> ModeValues {"Disabled", "Mixed Reality", "First Person", "Third Person"};
+    return ModeValues;
+}
 
 void LocalizeComponent(QuestUI::IncrementSetting* component, std::string key)
 {
@@ -63,8 +68,8 @@ void LocalizeComponent(TMPro::TextMeshProUGUI* labelObj, std::string key)
 
 TMPro::TextMeshProUGUI* CreateLocalizableText(std::string key, UnityEngine::Transform* parent, bool italics)
 {
-    Polyglot::LocalizedTextMeshProUGUI* polyglotTextObj = (Polyglot::LocalizedTextMeshProUGUI*)UnityEngine::Resources::FindObjectsOfTypeAll<Polyglot::LocalizedTextMeshProUGUI*>()->values[0];
-    TMPro::TextMeshProUGUI* localizedTMPro = polyglotTextObj->localizedComponent;    
+    Polyglot::LocalizedTextMeshProUGUI* polyglotTextObj = (Polyglot::LocalizedTextMeshProUGUI*)UnityEngine::Resources::FindObjectsOfTypeAll<Polyglot::LocalizedTextMeshProUGUI*>()[0];
+    TMPro::TextMeshProUGUI* localizedTMPro = polyglotTextObj->dyn_localizedComponent();    
 
     TMPro::TextMeshProUGUI* newTextObj = UnityEngine::Object::Instantiate(localizedTMPro, parent->get_transform(), false);
     UnityEngine::Object::Destroy(newTextObj->GetComponent<Polyglot::LocalizedTextMeshProUGUI*>());
@@ -80,7 +85,7 @@ TMPro::TextMeshProUGUI* CreateLocalizableText(std::string key, UnityEngine::Tran
 
 bool IsEnglish()
 {
-    return (Polyglot::Localization::get_Instance()->selectedLanguage == Polyglot::Language::English);
+    return (Polyglot::Localization::get_Instance()->dyn_selectedLanguage() == Polyglot::Language::English);
 }
 
 bool IsHardwareCapable()
@@ -90,11 +95,11 @@ bool IsHardwareCapable()
     {
         return OVRPlugin::GetSystemHeadsetType() == OVRPlugin::SystemHeadset::Oculus_Quest_2;
     }
-    auto* refreshrates = OVRPlugin::get_systemDisplayFrequenciesAvailable();
-    return (refreshrates->values[refreshrates->Length() - 1] >= 90.0f);
+    auto refreshrates = OVRPlugin::get_systemDisplayFrequenciesAvailable();
+    return (refreshrates[refreshrates.Length() - 1] >= 90.0f);
 }
 
-Array<UnityEngine::Vector2Int>* GetMRCResolutions()
+ArrayW<UnityEngine::Vector2Int> GetMRCResolutions()
 {
     using namespace UnityEngine;
     std::vector<Vector2Int> _mrcResolutions = {Vector2Int(640, 360), Vector2Int(854, 480), Vector2Int(1280, 720), Vector2Int(1366, 768)};

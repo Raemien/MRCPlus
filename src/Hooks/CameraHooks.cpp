@@ -1,3 +1,4 @@
+#define USE_CODEGEN_FIELDS
 #include "Helpers/HookInstaller.hpp"
 #include "Helpers/ObjectHelper.hpp"
 #include "Types/PreloadedFrames.hpp"
@@ -5,6 +6,8 @@
 #include "MRCConfig.hpp"
 #include "main.hpp"
 
+#include "System/IntPtr.hpp"
+#include "System/Func_2.hpp"
 #include "beatsaber-hook/shared/utils/hooking.hpp"
 #include "beatsaber-hook/shared/utils/utils.h"
 
@@ -21,15 +24,19 @@
 #include "UnityEngine/Transform.hpp"
 #include "UnityEngine/RenderTexture.hpp"
 #include "UnityEngine/TextureFormat.hpp"
+#include "UnityEngine/XR/XRSettings.hpp"
+#include "UnityEngine/QualitySettings.hpp"
 #include "UnityEngine/ImageConversion.hpp"
 
-#include "GlobalNamespace/MainSettingsModelSO.hpp"
+#include "GlobalNamespace/ExternalCamerasManager.hpp"
+#include "GlobalNamespace/OculusMRCManager.hpp"
 #include "GlobalNamespace/OVRCameraRig.hpp"
 #include "GlobalNamespace/OVRPlugin.hpp"
 #include "GlobalNamespace/OVRPlugin_Media.hpp"
 #include "GlobalNamespace/OVRPlugin_Result.hpp"
 #include "GlobalNamespace/OVRPlugin_OVRP_1_49_0.hpp"
 #include "GlobalNamespace/OVRPlugin_OVRP_1_15_0.hpp"
+#include "GlobalNamespace/OculusVRHelper.hpp"
 #include "GlobalNamespace/OVRManager.hpp"
 #include "GlobalNamespace/OVRManager_TrackingOrigin.hpp"
 #include "GlobalNamespace/OVRExternalComposition.hpp"
@@ -91,16 +98,17 @@ void SetCullingMasks(UnityEngine::Camera* hmdCam, UnityEngine::Camera* mrcCam)
 MAKE_HOOK_MATCH(OVRCameraRig_Start, &GlobalNamespace::OVRCameraRig::Start, void, GlobalNamespace::OVRCameraRig* self)
 {
     OVRCameraRig_Start(self);
-    if (!OVRPlugin::GetUseOverriddenExternalCameraFov(0)) {
-        OVRPlugin::Result success = OVRPlugin::OVRP_1_15_0::ovrp_GetExternalCameraIntrinsics(0, mrcInfo);
-    }
+    // if (!OVRPlugin::GetUseOverriddenExternalCameraFov(0)) {
+    //     OVRPlugin::Result success = OVRPlugin::OVRP_1_15_0::ovrp_GetExternalCameraIntrinsics(0, mrcInfo);
+    // }
 
-    auto& modcfg = getConfig().config;
-    int fwidth = modcfg["width"].GetInt();
-    int fheight = modcfg["height"].GetInt();
+    // auto& modcfg = getConfig().config;
+    // int fwidth = modcfg["width"].GetInt();
+    // int fheight = modcfg["height"].GetInt();
 
-    OVRPlugin::Media::SetMrcFrameSize(fwidth, fheight);
-    SetAsymmetricFOV((float)fwidth, (float)fheight);
+    // OVRPlugin::Media::SetMrcFrameSize(fwidth, fheight);
+    // SetAsymmetricFOV((float)fwidth, (float)fheight);
+    // getLogger().info("mrcplusinit");
 }
 
 MAKE_HOOK_FIND_CLASS(OVRPlugin_InitializeMR, "", "OVRPlugin", "InitializeMixedReality", void)
@@ -112,9 +120,32 @@ MAKE_HOOK_FIND_CLASS(OVRPlugin_InitializeMR, "", "OVRPlugin", "InitializeMixedRe
     auto& modcfg = getConfig().config;
     int fwidth = modcfg["width"].GetInt();
     int fheight = modcfg["height"].GetInt();
+
+    // int mrwidth;
+    // int mrheight;
+    // OVRPlugin::Media::GetMrcFrameSize(byref(mrwidth), byref(mrheight));
+    // getLogger().info("MRC+ width: %d", mrwidth);
     OVRPlugin::Media::SetMrcFrameSize(fwidth, fheight);
+    SetAsymmetricFOV((float)fwidth, (float)fheight);
 
     getLogger().info("[MRCPlus] Mixed Reality Capture initialized.");
+}
+
+MAKE_HOOK_FIND_CLASS_UNSAFE_STATIC(OVRPlugin_EncodeMrcFrame, "", "OVRPlugin/Media", "EncodeMrcFrame", bool, System::IntPtr textureHandle, System::IntPtr fgTextureHandle, ArrayW<float> audioData, int audioFrames, int audioChannels, double timestamp, double poseTime, int& outSyncId)
+{
+    // OVRPlugin::Media::SyncMrcFrame(outSyncId);
+    OVRPlugin_EncodeMrcFrame(textureHandle, fgTextureHandle, audioData, audioFrames, audioChannels, timestamp, poseTime, outSyncId);
+    // getLogger().info("[MRCPlus] MFrame encoded! %d", timestamp);
+    return true;
+}
+
+MAKE_HOOK_FIND_CLASS_UNSAFE_STATIC(OVRPlugin_SyncMrcFrame, "", "OVRPlugin/OVRP_1_38_0", "ovrp_Media_SyncMrcFrame", bool, int syncId)
+{
+    int syncthingy = syncId;
+    getLogger().info("[MRCPlus] Frame sync! %d", syncId);
+    OVRPlugin_SyncMrcFrame(syncId);
+
+    return true;
 }
 
 MAKE_HOOK_MATCH(OVRExternalComposition_Update, &GlobalNamespace::OVRExternalComposition::Update, void, GlobalNamespace::OVRExternalComposition* instance, UnityEngine::GameObject* parentObj, UnityEngine::Camera* mainCam, GlobalNamespace::OVRMixedRealityCaptureConfiguration* mrcConfig, GlobalNamespace::OVRManager_TrackingOrigin trackingOrigin)
@@ -145,8 +176,15 @@ MAKE_HOOK_MATCH(OVRExternalComposition_Update, &GlobalNamespace::OVRExternalComp
         fxaaEffect->mrcCamera = bgCamera;
     }
     
+    // if (OVRPlugin::get_systemDisplayFrequency() == 90.0f && OVRPlugin::get_systemDisplayFrequenciesAvailable().Contains(120.0f))
+    // {
+    //     OVRPlugin::set_systemDisplayFrequency(120.0f);
+    // }
+    // UnityEngine::XR::XRSettings::set_eyeTextureResolutionScale(0.7f);
+    // if (UnityEngine::QualitySettings::get_antiAliasing() == 4) UnityEngine::QualitySettings::set_antiAliasing(2);
+
     // Override camera placement
-    // ::Array<float>* array_noaudio = {};
+    // ArrayW<float> array_noaudio = {};
     UnityEngine::Transform* refTransform = rotationRef->get_transform();
     bgCamera->get_transform()->SetPositionAndRotation(refTransform->get_position(), refTransform->get_rotation());
     // bgCamera->Render();
@@ -154,7 +192,7 @@ MAKE_HOOK_MATCH(OVRExternalComposition_Update, &GlobalNamespace::OVRExternalComp
     // bool result = CRASH_UNLESS(il2cpp_utils::RunMethodUnsafe<bool>("", "OVRPlugin/Media", "EncodeMrcFrame", bgCamera->get_targetTexture()->GetNativeTexturePtr(), fgCamera->get_targetTexture()->GetNativeTexturePtr(), array_noaudio, 0, 0, (double)0, (double)0, byref(syncID)));
 }
 
-MAKE_HOOK_MATCH(OVRManager_LateUpdate, &GlobalNamespace::OVRManager::LateUpdate, void, GlobalNamespace::OVRManager* self)
+MAKE_HOOK_MATCH(OVRManager_LateUpdate, &GlobalNamespace::OculusVRHelper::LateUpdate, void, GlobalNamespace::OculusVRHelper* self)
 {
     OVRManager_LateUpdate(self);
     UnityEngine::Camera* maincam = UnityEngine::Camera::get_main();
@@ -194,21 +232,20 @@ MAKE_HOOK_MATCH(OVRManager_LateUpdate, &GlobalNamespace::OVRManager::LateUpdate,
     }
 }
 
-MAKE_HOOK_MATCH(MainSettingsModel_Load, &GlobalNamespace::MainSettingsModelSO::Load, void, GlobalNamespace::MainSettingsModelSO* instance, bool forced)
-{
-    MainSettingsModel_Load(instance, forced);
-    BoolSO* mrcEnabled = (BoolSO*)UnityEngine::ScriptableObject::CreateInstance(csTypeOf(BoolSO*));
-    mrcEnabled->value = true;
-    instance->oculusMRCEnabled = mrcEnabled;
-}
+// MAKE_HOOK_MATCH(ExternalCamerasManager_Init, &GlobalNamespace::ExternalCamerasManager::OnEnable, void, GlobalNamespace::ExternalCamerasManager* instance)
+// {
+//     ExternalCamerasManager_Init(instance);
+//     instance->oculusMRCManager->set_enableMixedReality(true);
+//     OVRPlugin::Media::SyncMrcFrame(0);
+// }
 
 void MRCPlus::Hooks::Install_CameraHooks()
 {
     INSTALL_HOOK(getLogger(), OVRPlugin_InitializeMR);
     INSTALL_HOOK(getLogger(), OVRCameraRig_Start);
+    INSTALL_HOOK(getLogger(), OVRPlugin_SyncMrcFrame);
     INSTALL_HOOK(getLogger(), OVRExternalComposition_Update);
     INSTALL_HOOK(getLogger(), OVRManager_LateUpdate);
-    INSTALL_HOOK(getLogger(), MainSettingsModel_Load);
     getLogger().info("[MRCPlus] Installed Camera hooks");
 }
 

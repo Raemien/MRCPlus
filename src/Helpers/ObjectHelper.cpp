@@ -15,13 +15,13 @@ MRCPlus::PreloadedFrames* preloadedFrames;
 
 GlobalNamespace::BoolSO* GetMRCBoolSO()
 {
-    Array<GlobalNamespace::BoolSettingsController*>* boolSOArray = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::BoolSettingsController*>();
-    for (int i = 0; i < sizeof(boolSOArray); i++)
+    ArrayW<GlobalNamespace::BoolSettingsController*> boolSOArray = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::BoolSettingsController*>();
+    for (int i = 0; i < boolSOArray.Length(); i++)
     {
-        GlobalNamespace::BoolSettingsController* boolcontr = (GlobalNamespace::BoolSettingsController*)boolSOArray->values[i];
+        GlobalNamespace::BoolSettingsController* boolcontr = (GlobalNamespace::BoolSettingsController*)boolSOArray[i];
         if (boolcontr->get_gameObject()->get_name()->Contains(il2cpp_utils::newcsstr("MixedRealityCaptureEnabled")))
         {
-            return boolcontr->settingsValue;
+            return boolcontr->dyn__settingsValue();
         } 
     }
     getLogger().warning("[MRCPlus] Unable to find the MRC toggle! Please yell at Raemien if you see this message.");
