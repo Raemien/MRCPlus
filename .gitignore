@@ -36,12 +36,14 @@
 !.vscode/tasks.json
 
 # NDK stuff
+/build
 out/
 [Ll]ib/
 [Ll]ibs/
 [Oo]bj/
 [Oo]bjs/
 ndkpath.txt
+*.cmake
 *.zip
 
 # Embedded assets (todo: batch later!)
